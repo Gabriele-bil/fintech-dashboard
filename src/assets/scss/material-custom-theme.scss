@@ -28,6 +28,10 @@ $fintech-dashboard-theme: mat.define-dark-theme((
   )
 ));
 
+.material-icons{
+  font-family: 'Material Icons', serif !important;
+}
+
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
