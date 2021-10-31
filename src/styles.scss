@@ -1,1 +1,6 @@
-/* You can add global styles to this file, and also import other style files */
+@import "assets/scss/material-custom-theme";
+@import "~bootstrap/dist/css/bootstrap-utilities.min.css";
+
+* { font-family: 'Poppins', "Helvetica Neue", sans-serif !important; }
+html, body { height: 100%; }
+body { margin: 0; }
