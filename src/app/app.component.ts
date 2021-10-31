@@ -4,12 +4,14 @@ import { Component } from '@angular/core';
   selector: 'ft-root',
   template: `
     <div class="d-flex align-items-center justify-content-center">
-      <ft-sign-in></ft-sign-in>
+      <ft-login></ft-login>
     </div>
   `,
-  styles: [`
+  styles: [
+    `
     div {
       min-height: 100vh;
+      background-color: #111112;
     }
   `]
 })
