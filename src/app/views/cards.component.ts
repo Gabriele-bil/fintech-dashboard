@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Card } from '../models/card.model';
 import { CardForm } from '../models/card-form.model';
+import { SnackBarService } from '../shared/services/snack-bar.service';
 
 @Component({
   selector: 'ft-cards',
@@ -58,8 +59,11 @@ export class CardsComponent {
     },
   ];
 
+  constructor(private snackBarService: SnackBarService) { }
+
   public removeCard(cardId: string): void {
     this.cards = this.cards.filter(card => card._id !== cardId);
+    this.snackBarService.openDefaultSnackBar('La carta è stata rimossa correttamente');
   }
 
   public saveCard(newCard: CardForm): void {
@@ -71,8 +75,8 @@ export class CardsComponent {
       amount: 0,
       type: newCard.cardType
     };
-
     this.cards = [...this.cards, card];
+    this.snackBarService.openDefaultSnackBar('La carta è stata aggiunta correttamente');
   }
 
   public goToCardMovements(cardId: string): void {
