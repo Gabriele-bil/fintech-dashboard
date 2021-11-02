@@ -12,6 +12,10 @@ import { LoginComponent } from './views/login.component';
 import { CardListComponent } from './views/card-list.component';
 import { CardFormComponent } from './views/card-form.component';
 import { CardsComponent } from './views/cards.component';
+import { MovementComponent } from './views/movement.component';
+import { MovementsComponent } from './views/movements.component';
+import { TruncatePipe } from './shared/pipes/truncate.pipe';
+import { MovementInOutDirective } from './shared/directives/movement-in-out.directive';
 
 @NgModule({
   declarations: [
@@ -21,7 +25,11 @@ import { CardsComponent } from './views/cards.component';
     LoginComponent,
     CardListComponent,
     CardFormComponent,
-    CardsComponent
+    CardsComponent,
+    MovementComponent,
+    MovementsComponent,
+    TruncatePipe,
+    MovementInOutDirective
   ],
   imports: [
     BrowserModule,
