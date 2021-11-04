@@ -16,6 +16,12 @@ import { MovementComponent } from './views/movement.component';
 import { MovementsComponent } from './views/movements.component';
 import { TruncatePipe } from './shared/pipes/truncate.pipe';
 import { MovementInOutDirective } from './shared/directives/movement-in-out.directive';
+import { TransferComponent } from './views/transfer.component';
+import { DialogComponent } from './shared/components/dialog.component';
+import { ContactsComponent } from './shared/components/contacts.component';
+import { FilterPipe } from './shared/pipes/filter.pipe';
+import { ContactFormComponent } from './shared/components/contact-form.component';
+import { ContactListComponent } from './shared/components/contact-list.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +35,13 @@ import { MovementInOutDirective } from './shared/directives/movement-in-out.dire
     MovementComponent,
     MovementsComponent,
     TruncatePipe,
-    MovementInOutDirective
+    MovementInOutDirective,
+    TransferComponent,
+    DialogComponent,
+    ContactsComponent,
+    FilterPipe,
+    ContactFormComponent,
+    ContactListComponent
   ],
   imports: [
     BrowserModule,
