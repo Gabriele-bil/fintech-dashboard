@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'ft-root',
   template: `
     <div class="d-flex align-items-center justify-content-center">
-      <ft-movements></ft-movements>
+      <ft-transfer></ft-transfer>
     </div>
   `,
   styles: [
