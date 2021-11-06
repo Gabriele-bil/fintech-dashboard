@@ -18,10 +18,13 @@ import { TruncatePipe } from './shared/pipes/truncate.pipe';
 import { MovementInOutDirective } from './shared/directives/movement-in-out.directive';
 import { TransferComponent } from './views/transfer.component';
 import { DialogComponent } from './shared/components/dialog.component';
-import { ContactsComponent } from './shared/components/contacts.component';
+import { ContactsComponent } from './views/contacts.component';
 import { FilterPipe } from './shared/pipes/filter.pipe';
-import { ContactFormComponent } from './shared/components/contact-form.component';
-import { ContactListComponent } from './shared/components/contact-list.component';
+import { ContactFormComponent } from './views/contact-form.component';
+import { ContactListComponent } from './views/contact-list.component';
+import { AppointmentsComponent } from './views/appointments.component';
+import { AppointmentsListComponent } from './views/appointments-list.component';
+import { AppointmentsSelectDateComponent } from './views/appointments-select-date.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +44,10 @@ import { ContactListComponent } from './shared/components/contact-list.component
     ContactsComponent,
     FilterPipe,
     ContactFormComponent,
-    ContactListComponent
+    ContactListComponent,
+    AppointmentsComponent,
+    AppointmentsListComponent,
+    AppointmentsSelectDateComponent
   ],
   imports: [
     BrowserModule,

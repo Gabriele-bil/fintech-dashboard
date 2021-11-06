@@ -4,7 +4,7 @@ import { MOCK_CARDS } from '../shared/mock-data/mock-cards';
 import { Card } from '../models/card.model';
 import { DialogService } from '../shared/services/dialog.service';
 import { SnackBarService } from '../shared/services/snack-bar.service';
-import { ContactsComponent } from '../shared/components/contacts.component';
+import { ContactsComponent } from './contacts.component';
 import { MOCK_CONTACTS } from '../shared/mock-data/mock-contacts';
 import { Contact } from '../models/contact.model';
 import { MatDialogRef } from '@angular/material/dialog';

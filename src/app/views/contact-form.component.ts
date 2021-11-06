@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Contact } from '../../models/contact.model';
+import { Contact } from '../models/contact.model';
 
 @Component({
   selector: 'ft-contact-form',

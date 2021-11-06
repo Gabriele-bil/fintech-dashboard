@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Contact } from '../../models/contact.model';
+import { Contact } from '../models/contact.model';
 
 @Component({
   selector: 'ft-contacts',
