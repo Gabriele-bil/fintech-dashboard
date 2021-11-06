@@ -14,13 +14,17 @@ import { MatSidenav } from '@angular/material/sidenav';
     <mat-drawer-container autosize>
       <ft-appointments-list
         [locations]="locations"
-        (selectedLocation)="selectedLocation = $event; drawer.toggle()"
+        (selectedLocation)="selectedLocation = $event; drawer.open()"
       >
       </ft-appointments-list>
 
       <mat-drawer #drawer mode="side" position="end">
         <ft-appointments-select-date
-          [slots]="slots" (selectedDayWithSlot)="openConfirmDialog($event)">
+          *ngIf="selectedLocation"
+          [location]="selectedLocation"
+          [slots]="slots"
+          (selectedDayWithSlot)="openConfirmDialog($event)"
+        >
         </ft-appointments-select-date>
       </mat-drawer>
     </mat-drawer-container>
@@ -42,8 +46,7 @@ export class AppointmentsComponent {
   constructor(
     private dialogService: DialogService,
     private snackBarService: SnackBarService,
-  ) {
-  }
+  ) { }
 
   public openConfirmDialog(dayWithSlot: DayWithSlot): void {
     const dialogRef = this.dialogService.openDefaultDialog({
