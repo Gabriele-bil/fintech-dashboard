@@ -25,6 +25,7 @@ import { ContactListComponent } from './views/contact-list.component';
 import { AppointmentsComponent } from './views/appointments.component';
 import { AppointmentsListComponent } from './views/appointments-list.component';
 import { AppointmentsSelectDateComponent } from './views/appointments-select-date.component';
+import { NavModule } from './core/nav/nav.module';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { AppointmentsSelectDateComponent } from './views/appointments-select-dat
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    NavModule
   ],
   providers: [],
   bootstrap: [AppComponent]

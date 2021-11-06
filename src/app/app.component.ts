@@ -3,17 +3,9 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'ft-root',
   template: `
-    <div class="d-flex align-items-center justify-content-center">
-      <ft-appointments></ft-appointments>
-    </div>
+   <ft-nav></ft-nav>
   `,
-  styles: [
-    `
-    div {
-      min-height: 100vh;
-      background-color: #111112;
-    }
-  `]
+  styles: [``]
 })
 export class AppComponent {
   title = 'fintech-dashboard';
