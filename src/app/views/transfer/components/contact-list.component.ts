@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Contact } from '../models/contact.model';
+import { Contact } from '../../../models/contact.model';
 
 @Component({
   selector: 'ft-contact-list',

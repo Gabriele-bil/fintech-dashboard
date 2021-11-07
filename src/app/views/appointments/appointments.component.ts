@@ -1,17 +1,17 @@
 import { Component, ViewChild } from '@angular/core';
-import { Location } from '../models/location.model';
-import { MOCK_LOCATIONS } from '../shared/mock-data/mock-locations';
-import { DayWithSlots } from '../models/day-with-slots.model';
-import { MOCK_SLOTS } from '../shared/mock-data/mock-slots';
-import { DialogService } from '../shared/services/dialog.service';
-import { DayWithSlot } from '../models/day-with-slot';
-import { SnackBarService } from '../shared/services/snack-bar.service';
+import { Location } from '../../models/location.model';
+import { MOCK_LOCATIONS } from '../../shared/mock-data/mock-locations';
+import { DayWithSlots } from '../../models/day-with-slots.model';
+import { MOCK_SLOTS } from '../../shared/mock-data/mock-slots';
+import { DialogService } from '../../shared/services/dialog.service';
+import { DayWithSlot } from '../../models/day-with-slot';
+import { SnackBarService } from '../../shared/services/snack-bar.service';
 import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'ft-appointments',
   template: `
-    <mat-drawer-container autosize>
+    <mat-drawer-container autosize id="container">
       <ft-appointments-list
         [locations]="locations"
         (selectedLocation)="selectedLocation = $event; drawer.open()"
@@ -30,9 +30,8 @@ import { MatSidenav } from '@angular/material/sidenav';
     </mat-drawer-container>
   `,
   styles: [`
-    mat-drawer-container {
-      width: 100vw;
-      height: 100vh;
+    #container {
+      height: calc(100vh - 64px);
     }
   `],
 })

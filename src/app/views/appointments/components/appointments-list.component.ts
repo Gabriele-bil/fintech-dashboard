@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Location } from '../models/location.model';
+import { Location } from '../../../models/location.model';
 
 @Component({
   selector: 'ft-appointments-list',

@@ -3,10 +3,7 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'ft-root',
   template: `
-   <ft-nav></ft-nav>
+   <router-outlet></router-outlet>
   `,
-  styles: [``]
 })
-export class AppComponent {
-  title = 'fintech-dashboard';
-}
+export class AppComponent { }

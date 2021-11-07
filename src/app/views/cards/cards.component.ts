@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { Card } from '../models/card.model';
-import { CardForm } from '../models/card-form.model';
-import { SnackBarService } from '../shared/services/snack-bar.service';
-import { MOCK_CARDS } from '../shared/mock-data/mock-cards';
+import { Card } from '../../models/card.model';
+import { CardForm } from '../../models/card-form.model';
+import { SnackBarService } from '../../shared/services/snack-bar.service';
+import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
 
 @Component({
   selector: 'ft-cards',

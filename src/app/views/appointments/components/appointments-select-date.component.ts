@@ -10,36 +10,38 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { DayWithSlots, Slots } from '../models/day-with-slots.model';
+import { DayWithSlots, Slots } from '../../../models/day-with-slots.model';
 import { FormControl } from '@angular/forms';
-import { DayWithSlot, Slot } from '../models/day-with-slot';
+import { DayWithSlot, Slot } from '../../../models/day-with-slot';
 import * as L from 'leaflet'
-import { Location } from '../models/location.model';
+import { Location } from '../../../models/location.model';
 
 @Component({
   selector: 'ft-appointments-select-date',
   template: `
-    <div #host style="width: 100%; height: 300px" class="mb-4"></div>
+    <div class="h-100">
+      <div #host style="width: 100%; height: 300px" class="mb-4"></div>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Seleziona una data</mat-label>
-      <input
-        matInput
-        [matDatepicker]="picker"
-        [matDatepickerFilter]="filterSlots"
-        [formControl]="dateInput"
-      >
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Seleziona una data</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [matDatepickerFilter]="filterSlots"
+          [formControl]="dateInput"
+        >
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
 
-    <mat-list *ngIf="dateInput.value">
-      <div mat-subheader>Orari disponibili</div>
-      <mat-list-item *ngFor="let hour of hours" (click)="selectedDay(hour)">
-        <mat-icon class="me-3">schedule</mat-icon>
-        {{ hour }}
-      </mat-list-item>
-    </mat-list>
+      <mat-list *ngIf="dateInput.value">
+        <div mat-subheader>Orari disponibili</div>
+        <mat-list-item *ngFor="let hour of hours" (click)="selectedDay(hour)">
+          <mat-icon class="me-3">schedule</mat-icon>
+          {{ hour }}
+        </mat-list-item>
+      </mat-list>
+    </div>
   `,
   styles: [`
     mat-list-item:hover {

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Card } from '../models/card.model';
-import { MOCK_CARDS } from '../shared/mock-data/mock-cards';
-import { Movement } from '../models/movement.model';
-import { MOCK_MOVEMENTS } from '../shared/mock-data/mock-movments';
+import { Card } from '../../models/card.model';
+import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
+import { Movement } from '../../models/movement.model';
+import { MOCK_MOVEMENTS } from '../../shared/mock-data/mock-movments';
 import { FormControl } from '@angular/forms';
 
 @Component({
