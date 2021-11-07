@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { CardForm } from '../models/card-form.model';
+import { CardForm } from '../../../models/card-form.model';
 
 @Component({
   selector: 'ft-card-form',
@@ -67,6 +67,7 @@ import { CardForm } from '../models/card-form.model';
     </div>
   `,
   styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardFormComponent {
   @Output() saveCard = new EventEmitter<CardForm>();

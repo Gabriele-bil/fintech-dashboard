@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Contact } from '../models/contact.model';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Contact } from '../../../models/contact.model';
 
 @Component({
   selector: 'ft-contact-list',
@@ -45,6 +45,7 @@ import { Contact } from '../models/contact.model';
     </mat-list>
   `,
   styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactListComponent {
   @Input() contacts: Contact[] = [];

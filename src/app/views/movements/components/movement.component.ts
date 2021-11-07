@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'ft-movement',
@@ -25,6 +25,7 @@ import { Component, Input } from '@angular/core';
     </mat-accordion>
   `,
   styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MovementComponent {
   @Input() movementTimeStamp = 0;

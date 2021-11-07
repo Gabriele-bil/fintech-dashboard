@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Location } from '../models/location.model';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Location } from '../../../models/location.model';
 
 @Component({
   selector: 'ft-appointments-list',
@@ -25,6 +25,7 @@ import { Location } from '../models/location.model';
       color: #afafaf;
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppointmentsListComponent {
   @Input() locations: Location[] = [];
