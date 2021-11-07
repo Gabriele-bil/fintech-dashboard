@@ -5,11 +5,13 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
 import { NavModule } from '../../core/nav/nav.module';
 import { MaterialModule } from '../../shared/modules/material.module';
+import { WelcomeComponent } from './components/welcome.component';
 
 
 @NgModule({
   declarations: [
-    DashboardComponent
+    DashboardComponent,
+    WelcomeComponent
   ],
   imports: [
     CommonModule,

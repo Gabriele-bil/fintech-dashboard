@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
+import { WelcomeComponent } from './components/welcome.component';
 
 const appointmentsModule = () => import('./../appointments/appointments.module').then(m => m.AppointmentsModule);
 const cardsModule = () => import('./../cards/cards.module').then(m => m.CardsModule);
@@ -11,6 +12,7 @@ const transfer = () => import('./../transfer/transfer.module').then(m => m.Trans
 const routes: Routes = [
   {
     path: '', component: DashboardComponent, children: [
+      { path: '',component: WelcomeComponent },
       { path: 'appointments', loadChildren: appointmentsModule },
       { path: 'cards', loadChildren: cardsModule },
       { path: 'movements', loadChildren: movementsModule },
