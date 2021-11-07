@@ -3,30 +3,18 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'ft-login',
   template: `
-    <mat-card id="container">
-      <ng-container *ngIf="showView === 'sign-in'; else register">
-        <ft-sign-in></ft-sign-in>
-      </ng-container>
-
-      <ng-template #register>
-        <ft-register></ft-register>
-      </ng-template>
-      <button mat-button color="accent" class="mt-2 ps-0" (click)="toggleView()">
-        {{ showView === 'register' ? "Hai già un'account? Accedi" : "Crea un nuovo account" }}
-      </button>
-    </mat-card>
+    <div id="container" class="d-flex justify-content-center align-items-center">
+      <mat-card>
+        <router-outlet></router-outlet>
+      </mat-card>
+    </div>
   `,
   styles: [`
     #container {
-      max-width: 500px;
+      width: 100vw;
+      height: 100vh;
+      background-color: #1d1d1d;
     }
   `],
 })
-export class LoginComponent {
-  public showView: 'register' | 'sign-in' = 'sign-in';
-
-  public toggleView(): void {
-    this.showView = this.showView === 'register' ? 'sign-in' : 'register';
-  }
-
-}
+export class LoginComponent { }

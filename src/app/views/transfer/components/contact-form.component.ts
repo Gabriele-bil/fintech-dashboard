@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Contact } from '../../../models/contact.model';
 
@@ -29,6 +29,7 @@ import { Contact } from '../../../models/contact.model';
       </button>
     </form>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactFormComponent implements OnInit {
   @Input() initialContact: Omit<Contact, "_id"> | null = null;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Contact } from '../../../models/contact.model';
 
@@ -38,6 +38,7 @@ import { Contact } from '../../../models/contact.model';
       width: 500px;
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactsComponent {
   @Output() deleteContact = new EventEmitter<string>();

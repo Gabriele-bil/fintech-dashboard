@@ -44,6 +44,7 @@ import { Component } from '@angular/core';
       >Accedi
       </button>
     </form>
+    <a mat-button color="accent" routerLink="/login/register">Crea un nuovo account</a>
   `,
   styles: [``],
 })
@@ -51,9 +52,6 @@ export class SignInComponent {
   public hidePassword = true;
   public email: string = '';
   public password: string = '';
-
-  constructor() {
-  }
 
   public logUser(user: { email: string, password: string }, invalid: boolean | null): void {
     if (!invalid) {

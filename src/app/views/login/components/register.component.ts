@@ -89,6 +89,8 @@ import { Component } from '@angular/core';
       >Accedi
       </button>
     </form>
+
+    <a mat-button color="accent" routerLink="/login/signin">Hai già un account? Accedi</a>
   `,
   styles: [],
 })

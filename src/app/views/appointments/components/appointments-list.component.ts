@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Location } from '../../../models/location.model';
 
 @Component({
@@ -25,6 +25,7 @@ import { Location } from '../../../models/location.model';
       color: #afafaf;
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppointmentsListComponent {
   @Input() locations: Location[] = [];

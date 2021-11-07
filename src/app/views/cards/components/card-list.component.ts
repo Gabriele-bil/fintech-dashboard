@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Card } from '../../../models/card.model';
 
 @Component({
@@ -23,6 +23,7 @@ import { Card } from '../../../models/card.model';
     </div>
   `,
   styles: [``],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardListComponent {
   @Input() cards: Card[] = [];
