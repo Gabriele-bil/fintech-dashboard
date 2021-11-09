@@ -21,6 +21,6 @@ export class AppointmentsService {
   }
 
   public scheduleAppointment(appointment: DayWithSlot): Observable<boolean> {
-    return this.http.post<boolean>(`/schedule`, { appointment });
+    return this.http.post<boolean>(`/schedule`, { ...appointment });
   }
 }
