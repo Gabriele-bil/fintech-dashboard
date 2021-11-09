@@ -15,11 +15,11 @@ export class ContactsService {
   }
 
   public addContact(contact: Omit<Contact, '_id'>): Observable<Contact> {
-    return this.http.post<Contact>(`/contacts`, { contact });
+    return this.http.post<Contact>(`/contacts`, { ...contact });
   }
 
   public updateContact(contact: Partial<Contact>): Observable<Contact> {
-    return this.http.put<Contact>(`/contacts/${contact._id}`, { contact });
+    return this.http.put<Contact>(`/contacts/${contact._id}`, { ...contact });
   }
 
   public deleteContact(contactId: string): Observable<boolean> {
