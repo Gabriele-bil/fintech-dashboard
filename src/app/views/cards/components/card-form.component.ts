@@ -9,13 +9,13 @@ import { CardForm } from '../../../models/card-form.model';
       <h2 mat-card-title>Aggiungi carta</h2>
       <form [formGroup]="cardForm">
         <mat-form-field appearance="fill" class="w-100 mb-3">
-          <mat-select formControlName="cardType">
+          <mat-select formControlName="type">
             <mat-option *ngFor="let type of cardTypes" [value]="type">
               {{ type | titlecase }}
             </mat-option>
           </mat-select>
           <mat-label>Tipo di carta</mat-label>
-          <mat-error *ngIf="getFormControl('cardType').invalid">
+          <mat-error *ngIf="getFormControl('type').invalid">
             Inserire il tipo della carta
           </mat-error>
         </mat-form-field>
@@ -40,16 +40,16 @@ import { CardForm } from '../../../models/card-form.model';
 
         <mat-form-field appearance="fill" class="d-block mb-3">
           <mat-label>N° Carta</mat-label>
-          <input matInput formControlName="cardNumber">
-          <mat-error *ngIf="getFormControl('cardNumber').invalid">
+          <input matInput formControlName="number">
+          <mat-error *ngIf="getFormControl('number').invalid">
             Il numero della carta deve avere esattamente 16 caratteri
           </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="d-block mb-3">
           <mat-label>Codice di sicurezza</mat-label>
-          <input matInput formControlName="secureCode">
-          <mat-error *ngIf="getFormControl('secureCode').invalid">
+          <input matInput formControlName="csc">
+          <mat-error *ngIf="getFormControl('csc').invalid">
             Il codice di sicurezza della carta deve avere esattamente 3 caratteri
           </mat-error>
         </mat-form-field>
@@ -75,11 +75,11 @@ export class CardFormComponent {
 
   public cardTypes = ['visa', 'mastercard'];
   public cardForm = this.fb.group({
-    cardType: ['', Validators.required],
+    type: ['', Validators.required],
     name: ['', Validators.required],
     surname: ['', Validators.required],
-    cardNumber: ['', [Validators.required, Validators.minLength(16), Validators.maxLength(16)]],
-    secureCode: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
+    number: ['', [Validators.required, Validators.minLength(16), Validators.maxLength(16)]],
+    csc: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(3)]],
   });
 
   constructor(private fb: FormBuilder) { }
@@ -87,7 +87,7 @@ export class CardFormComponent {
   public addCard(): void {
     if (this.cardForm.valid) {
       this.saveCard.emit(this.cardForm.value);
-      this.resetForm();
+      this.cardForm.reset();
     }
   }
 

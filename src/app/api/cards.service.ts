@@ -17,7 +17,7 @@ export class CardsService {
   }
 
   public addCard(card: CardForm): Observable<Card> {
-    return this.http.post<Card>(`/cards`, { card });
+    return this.http.post<Card>(`/cards`, { ...card });
   }
 
   public deleteCard(cardId: string): Observable<boolean> {

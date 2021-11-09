@@ -1,9 +1,9 @@
 import { CardType } from './types';
 
 export interface CardForm {
-  cardType: CardType;
+  type: CardType;
   name: string;
   surname: string;
-  cardNumber: string;
-  secureCode: string;
+  number: string;
+  csc: string;
 }

@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Card } from '../../models/card.model';
 import { CardForm } from '../../models/card-form.model';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
-import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
+import { Observable } from 'rxjs';
+import { CardsService } from '../../api/cards.service';
+import { MatDrawer } from '@angular/material/sidenav';
 
 @Component({
   selector: 'ft-cards',
@@ -10,7 +12,7 @@ import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
     <div id="container">
       <mat-drawer-container class="h-100 w-100" autosize>
         <ft-card-list
-          [cards]="cards"
+          [cards]="(cards$ | async) || []"
           (addCard)="drawer.toggle()"
           (showCardMovements)="goToCardMovements($event)"
           (removeCard)="removeCard($event)"
@@ -32,10 +34,16 @@ import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
     }
   `],
 })
-export class CardsComponent {
-  public cards: Card[] = MOCK_CARDS;
+export class CardsComponent implements OnInit {
+  @ViewChild('drawer') drawer!: MatDrawer;
+  public cards: Card[] = [];
+  public cards$: Observable<Card[]> | null = null;
 
-  constructor(private snackBarService: SnackBarService) { }
+  constructor(private snackBarService: SnackBarService, private cardsService: CardsService) { }
+
+  ngOnInit(): void {
+    this.getCards();
+  }
 
   public removeCard(cardId: string): void {
     this.cards = this.cards.filter(card => card._id !== cardId);
@@ -43,20 +51,19 @@ export class CardsComponent {
   }
 
   public saveCard(newCard: CardForm): void {
-    const card: Card = {
-      _id: Date.now().toString(36) + Math.random().toString(36).substr(2),
-      number: newCard.cardNumber,
-      owner: `${newCard.name} ${newCard.surname}`,
-      ownerId: '1',
-      amount: 0,
-      type: newCard.cardType
-    };
-    this.cards = [...this.cards, card];
-    this.snackBarService.openDefaultSnackBar('La carta è stata aggiunta correttamente');
+    this.cardsService.addCard(newCard).subscribe(() => {
+      this.getCards()
+      this.snackBarService.openDefaultSnackBar('La carta è stata aggiunta correttamente');
+      this.drawer.close();
+    });
   }
 
   public goToCardMovements(cardId: string): void {
     // TODO andare alla lista dei movimenti
     console.log(cardId);
+  }
+
+  private getCards(): void {
+    this.cards$ = this.cardsService.getAll();
   }
 }
