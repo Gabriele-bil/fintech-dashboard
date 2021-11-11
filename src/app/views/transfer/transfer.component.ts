@@ -12,6 +12,7 @@ import { ContactsService } from '../../api/contacts.service';
 import { TransferService } from '../../api/transfer.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { amountValidator } from '../../shared/validators/amount.validator';
+import { TransferValidators } from '../../shared/validators/transfer.validator';
 
 @Component({
   selector: 'ft-transfer',
@@ -53,10 +54,12 @@ import { amountValidator } from '../../shared/validators/amount.validator';
 
         <button
           type="button" mat-button
-          [disabled]="transferForm.invalid"
+          [disabled]="!transferForm.valid"
           (click)="transferMoney()"
-          class="w-100">
-          Trasferisci denaro
+          class="w-100"
+        >
+          <mat-spinner [diameter]="30" class="mx-auto" *ngIf="transferForm.pending; else label"></mat-spinner>
+          <ng-template #label>Trasferisci denaro</ng-template>
         </button>
       </form>
     </mat-card>
@@ -71,7 +74,9 @@ export class TransferComponent implements OnInit, OnDestroy {
     iban: ['', Validators.required],
     amount: ['', [Validators.required, amountValidator]],
     card: ['', Validators.required],
-  });
+  },
+    { asyncValidators: this.transferValidators.transferValidator() }
+  );
   private destroy$ = new Subject();
 
   constructor(
@@ -81,6 +86,7 @@ export class TransferComponent implements OnInit, OnDestroy {
     private cardService: CardsService,
     private contactService: ContactsService,
     private transferService: TransferService,
+    private transferValidators: TransferValidators
   ) { }
 
   public ngOnInit(): void {
