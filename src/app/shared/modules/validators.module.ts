@@ -4,13 +4,20 @@ import { EqualFieldsValidatorDirective } from '../validators/equal-fields.valida
 import { AmountValidatorDirective } from '../validators/amount.validator';
 import { IbanValidatorDirective } from '../validators/iban.validators';
 import { TransferValidators } from '../validators/transfer.validator';
+import { FiscalCodeValidatorDirective } from '../validators/fiscal-code.validator';
 
-const validators = [EqualFieldsValidatorDirective, AmountValidatorDirective, IbanValidatorDirective];
+const validators = [
+  EqualFieldsValidatorDirective,
+  AmountValidatorDirective,
+  IbanValidatorDirective,
+  FiscalCodeValidatorDirective
+];
 
 @NgModule({
   declarations: [...validators],
   imports: [CommonModule],
   exports: [...validators],
-  providers: [TransferValidators]
+  providers: [TransferValidators],
 })
-export class ValidatorsModule { }
+export class ValidatorsModule {
+}
