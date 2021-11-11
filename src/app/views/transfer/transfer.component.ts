@@ -11,6 +11,7 @@ import { CardsService } from '../../api/cards.service';
 import { ContactsService } from '../../api/contacts.service';
 import { TransferService } from '../../api/transfer.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
+import { amountValidator } from '../../shared/validators/amount.validator';
 
 @Component({
   selector: 'ft-transfer',
@@ -40,7 +41,7 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 
         <mat-form-field appearance="fill" class="w-100">
           <mat-label>Importo</mat-label>
-          <input matInput formControlName="amount" type="number">
+          <input matInput formControlName="amount" type="text">
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="w-100">
@@ -68,7 +69,7 @@ export class TransferComponent implements OnInit, OnDestroy {
     name: ['', Validators.required],
     surname: ['', Validators.required],
     iban: ['', Validators.required],
-    amount: ['', Validators.required],
+    amount: ['', [Validators.required, amountValidator]],
     card: ['', Validators.required],
   });
   private destroy$ = new Subject();
