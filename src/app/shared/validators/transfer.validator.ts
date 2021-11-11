@@ -4,17 +4,19 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TransferValidators {
-  constructor(private cardsService: CardsService) { }
+  constructor(private cardsService: CardsService) {
+  }
 
   public transferValidator(): AsyncValidatorFn {
-    return (control => {
-      return this.cardsService.getAll().pipe(
+    return (control => this.cardsService.getAll().pipe(
         map(cards => cards.find(card => card._id === control.get('card')?.value)!),
-        map(card => card.amount < control.get('amount')?.value ? { 'transfer': true } : null )
+        map(card => card.amount < control.get('amount')?.value ? { 'transfer': true } : null),
       )
-    })
+    );
   }
 }
+
+// TODO DIRECTIVE ASYNC VALIDATOR

@@ -13,6 +13,7 @@ import { TransferService } from '../../api/transfer.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { amountValidator } from '../../shared/validators/amount.validator';
 import { TransferValidators } from '../../shared/validators/transfer.validator';
+import { ibanValidator } from '../../shared/validators/iban.validators';
 
 @Component({
   selector: 'ft-transfer',
@@ -25,32 +26,39 @@ import { TransferValidators } from '../../shared/validators/transfer.validator';
       </button>
 
       <form [formGroup]="transferForm">
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name">
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>Surname</mat-label>
           <input matInput formControlName="surname">
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>IBAN</mat-label>
           <input matInput formControlName="iban">
+          <mat-error *ngIf="transferForm.get('iban')?.hasError('iban')">
+           L'iban non è nel formato corretto
+          </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>Importo</mat-label>
           <input matInput formControlName="amount" type="text">
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-select formControlName="card">
             <mat-option *ngFor="let card of cards$ | async" [value]="card._id">{{ card.number }}</mat-option>
           </mat-select>
           <mat-label>Seleziona carta</mat-label>
         </mat-form-field>
+
+        <mat-error *ngIf="transferForm.hasError('transfer')">
+          Non hai abbastanza soldini nella carta
+        </mat-error>
 
         <button
           type="button" mat-button
@@ -71,7 +79,7 @@ export class TransferComponent implements OnInit, OnDestroy {
   public transferForm = this.fb.group({
     name: ['', Validators.required],
     surname: ['', Validators.required],
-    iban: ['', Validators.required],
+    iban: ['', [Validators.required, ibanValidator]],
     amount: ['', [Validators.required, amountValidator]],
     card: ['', Validators.required],
   },
