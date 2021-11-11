@@ -15,7 +15,7 @@ import { FormControl } from '@angular/forms';
 import { DayWithSlot, Slot } from '../../../models/day-with-slot';
 import * as L from 'leaflet'
 import { Location } from '../../../models/location.model';
-import { dateToString } from '../../../shared/helpers';
+import { dateToString } from '../../../shared/helpers/helpers';
 
 @Component({
   selector: 'ft-appointments-select-date',

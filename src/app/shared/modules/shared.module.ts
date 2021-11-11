@@ -5,6 +5,7 @@ import { TruncatePipe } from '../pipes/truncate.pipe';
 import { MaterialModule } from './material.module';
 import { DialogService } from '../services/dialog.service';
 import { SnackBarService } from '../services/snack-bar.service';
+import { ValidatorsModule } from './validators.module';
 
 const sharedDeclarations = [DialogComponent, TruncatePipe];
 
@@ -14,7 +15,7 @@ const sharedDeclarations = [DialogComponent, TruncatePipe];
     CommonModule,
     MaterialModule,
   ],
-  exports: [...sharedDeclarations, MaterialModule],
+  exports: [...sharedDeclarations, MaterialModule, ValidatorsModule],
   providers: [DialogService, SnackBarService],
 })
 export class SharedModule { }

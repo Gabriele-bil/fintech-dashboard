@@ -3,7 +3,11 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'ft-register',
   template: `
-    <form #f="ngForm" (ngSubmit)="createUser(f.value, f.invalid)">
+    <form
+      #f="ngForm" (ngSubmit)="createUser(f.value, f.invalid)"
+      equalFields [equalFieldsFirstInput]="'password'"
+      [equalFieldsSecondInput]="'confirmPassword'"
+    >
       <mat-form-field class="w-100 mb-3" appearance="fill">
         <mat-label>Email</mat-label>
         <input
@@ -78,7 +82,8 @@ import { Component } from '@angular/core';
           Questo campo è obbligatorio
         </mat-error>
       </mat-form-field>
-      <mat-error *ngIf="confirmPassword.touched && confirmPassword.value !== password.value">
+
+      <mat-error *ngIf="confirmPassword.touched && password.touched && f.getError('equalFields')">
         Le due password non coincidono
       </mat-error>
 
