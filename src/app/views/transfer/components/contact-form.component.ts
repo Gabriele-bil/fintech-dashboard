@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Contact } from '../../../models/contact.model';
+import { ibanValidator } from '../../../shared/validators/iban.validators';
 
 @Component({
   selector: 'ft-contact-form',
@@ -19,6 +20,10 @@ import { Contact } from '../../../models/contact.model';
       <mat-form-field appearance="fill" class="w-100">
         <mat-label>IBAN</mat-label>
         <input matInput formControlName="iban">
+
+        <mat-error *ngIf="contactForm.get('iban')?.hasError('iban')">
+          L'iban non è nel formato corretto
+        </mat-error>
       </mat-form-field>
 
       <button
@@ -43,7 +48,7 @@ export class ContactFormComponent implements OnInit {
     this.contactForm = this.fb.group({
       name: [this.initialContact?.name ? this.initialContact?.name : '', Validators.required],
       surname: [this.initialContact?.surname ? this.initialContact?.surname : '', Validators.required],
-      iban: [this.initialContact?.iban ? this.initialContact?.iban : '', Validators.required],
+      iban: [this.initialContact?.iban ? this.initialContact?.iban : '', [Validators.required, ibanValidator]],
     });
   }
 }

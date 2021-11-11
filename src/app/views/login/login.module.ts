@@ -7,6 +7,7 @@ import { RegisterComponent } from './components/register.component';
 import { LoginComponent } from './login.component';
 import { MaterialModule } from '../../shared/modules/material.module';
 import { FormsModule } from '@angular/forms';
+import { ValidatorsModule } from '../../shared/modules/validators.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     LoginRoutingModule,
     MaterialModule,
-    FormsModule
+    FormsModule,
+    ValidatorsModule
   ]
 })
 export class LoginModule { }

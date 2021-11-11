@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Card } from '../../models/card.model';
 import { DialogService } from '../../shared/services/dialog.service';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
@@ -11,6 +11,9 @@ import { CardsService } from '../../api/cards.service';
 import { ContactsService } from '../../api/contacts.service';
 import { TransferService } from '../../api/transfer.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
+import { amountValidator } from '../../shared/validators/amount.validator';
+import { TransferValidators } from '../../shared/validators/transfer.validator';
+import { ibanValidator } from '../../shared/validators/iban.validators';
 
 @Component({
   selector: 'ft-transfer',
@@ -23,39 +26,54 @@ import { switchMap, takeUntil } from 'rxjs/operators';
       </button>
 
       <form [formGroup]="transferForm">
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>Nome</mat-label>
           <input matInput formControlName="name">
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>Surname</mat-label>
           <input matInput formControlName="surname">
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
+        <mat-form-field appearance="fill" class="w-100 mb-3">
           <mat-label>IBAN</mat-label>
           <input matInput formControlName="iban">
+          <mat-error *ngIf="transferForm.get('iban')?.hasError('iban')">
+            L'iban non è nel formato corretto
+          </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Importo</mat-label>
-          <input matInput formControlName="amount" type="number">
-        </mat-form-field>
+        <ng-container [formGroup]="moneyGroup">
+          <mat-form-field appearance="fill" class="w-100 mb-3">
+            <mat-label>Importo</mat-label>
+            <input matInput formControlName="amount" type="text">
+          </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-select formControlName="card">
-            <mat-option *ngFor="let card of cards$ | async" [value]="card._id">{{ card.number }}</mat-option>
-          </mat-select>
-          <mat-label>Seleziona carta</mat-label>
-        </mat-form-field>
+          <mat-form-field appearance="fill" class="w-100 mb-3">
+            <mat-select formControlName="card">
+              <mat-option *ngFor="let card of cards$ | async" [value]="card._id">{{ card.number }}</mat-option>
+              <mat-option [value]="'fake'">Carta falsa</mat-option>
+            </mat-select>
+            <mat-label>Seleziona carta</mat-label>
+            <mat-error *ngIf="moneyGroup.get('card')?.hasError('cardId')">
+              La carta inserita non è valida
+            </mat-error>
+          </mat-form-field>
+
+          <mat-error *ngIf="moneyGroup.hasError('transfer')">
+            Non hai abbastanza soldini nella carta
+          </mat-error>
+        </ng-container>
 
         <button
           type="button" mat-button
-          [disabled]="transferForm.invalid"
+          [disabled]="!transferForm.valid"
           (click)="transferMoney()"
-          class="w-100">
-          Trasferisci denaro
+          class="w-100"
+        >
+          <mat-spinner [diameter]="30" class="mx-auto" *ngIf="transferForm.pending; else label"></mat-spinner>
+          <ng-template #label>Trasferisci denaro</ng-template>
         </button>
       </form>
     </mat-card>
@@ -67,9 +85,11 @@ export class TransferComponent implements OnInit, OnDestroy {
   public transferForm = this.fb.group({
     name: ['', Validators.required],
     surname: ['', Validators.required],
-    iban: ['', Validators.required],
-    amount: ['', Validators.required],
-    card: ['', Validators.required],
+    iban: ['', [Validators.required, ibanValidator]],
+    money: this.fb.group({
+      amount: ['', [Validators.required, amountValidator]],
+      card: ['', Validators.required, [this.transferValidators.cardIdValidator()]],
+    }, { asyncValidators: this.transferValidators.transferValidator() })
   });
   private destroy$ = new Subject();
 
@@ -80,6 +100,7 @@ export class TransferComponent implements OnInit, OnDestroy {
     private cardService: CardsService,
     private contactService: ContactsService,
     private transferService: TransferService,
+    private transferValidators: TransferValidators
   ) { }
 
   public ngOnInit(): void {
@@ -90,6 +111,10 @@ export class TransferComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  public get moneyGroup(): FormGroup {
+    return this.transferForm.get('money') as FormGroup;
   }
 
   public transferMoney(): void {
