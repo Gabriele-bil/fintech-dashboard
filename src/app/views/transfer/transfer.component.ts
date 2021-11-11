@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Card } from '../../models/card.model';
 import { DialogService } from '../../shared/services/dialog.service';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
@@ -40,25 +40,31 @@ import { ibanValidator } from '../../shared/validators/iban.validators';
           <mat-label>IBAN</mat-label>
           <input matInput formControlName="iban">
           <mat-error *ngIf="transferForm.get('iban')?.hasError('iban')">
-           L'iban non è nel formato corretto
+            L'iban non è nel formato corretto
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100 mb-3">
-          <mat-label>Importo</mat-label>
-          <input matInput formControlName="amount" type="text">
-        </mat-form-field>
+        <ng-container [formGroup]="moneyGroup">
+          <mat-form-field appearance="fill" class="w-100 mb-3">
+            <mat-label>Importo</mat-label>
+            <input matInput formControlName="amount" type="text">
+          </mat-form-field>
 
-        <mat-form-field appearance="fill" class="w-100 mb-3">
-          <mat-select formControlName="card">
-            <mat-option *ngFor="let card of cards$ | async" [value]="card._id">{{ card.number }}</mat-option>
-          </mat-select>
-          <mat-label>Seleziona carta</mat-label>
-        </mat-form-field>
+          <mat-form-field appearance="fill" class="w-100 mb-3">
+            <mat-select formControlName="card">
+              <mat-option *ngFor="let card of cards$ | async" [value]="card._id">{{ card.number }}</mat-option>
+              <mat-option [value]="'fake'">Carta falsa</mat-option>
+            </mat-select>
+            <mat-label>Seleziona carta</mat-label>
+            <mat-error *ngIf="moneyGroup.get('card')?.hasError('cardId')">
+              La carta inserita non è valida
+            </mat-error>
+          </mat-form-field>
 
-        <mat-error *ngIf="transferForm.hasError('transfer')">
-          Non hai abbastanza soldini nella carta
-        </mat-error>
+          <mat-error *ngIf="moneyGroup.hasError('transfer')">
+            Non hai abbastanza soldini nella carta
+          </mat-error>
+        </ng-container>
 
         <button
           type="button" mat-button
@@ -80,11 +86,11 @@ export class TransferComponent implements OnInit, OnDestroy {
     name: ['', Validators.required],
     surname: ['', Validators.required],
     iban: ['', [Validators.required, ibanValidator]],
-    amount: ['', [Validators.required, amountValidator]],
-    card: ['', Validators.required],
-  },
-    { asyncValidators: this.transferValidators.transferValidator() }
-  );
+    money: this.fb.group({
+      amount: ['', [Validators.required, amountValidator]],
+      card: ['', Validators.required, [this.transferValidators.cardIdValidator()]],
+    }, { asyncValidators: this.transferValidators.transferValidator() })
+  });
   private destroy$ = new Subject();
 
   constructor(
@@ -105,6 +111,10 @@ export class TransferComponent implements OnInit, OnDestroy {
   public ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  public get moneyGroup(): FormGroup {
+    return this.transferForm.get('money') as FormGroup;
   }
 
   public transferMoney(): void {
