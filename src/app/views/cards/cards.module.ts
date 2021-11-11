@@ -5,8 +5,8 @@ import { CardsRoutingModule } from './cards-routing.module';
 import { CardListComponent } from './components/card-list.component';
 import { CardFormComponent } from './components/card-form.component';
 import { CardsComponent } from './cards.component';
-import { MaterialModule } from '../../shared/modules/material.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from '../../shared/modules/shared.module';
 
 @NgModule({
   declarations: [
@@ -17,7 +17,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     CardsRoutingModule,
-    MaterialModule,
+    SharedModule,
     ReactiveFormsModule
   ]
 })

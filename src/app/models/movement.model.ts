@@ -1,3 +1,8 @@
+export interface PaginatedMovements {
+  data: Movement[];
+  total: number;
+}
+
 export interface Movement {
   _id: string;
   type: 'in' | 'out';

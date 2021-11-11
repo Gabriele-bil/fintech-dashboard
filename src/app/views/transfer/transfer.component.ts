@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
 import { Card } from '../../models/card.model';
 import { DialogService } from '../../shared/services/dialog.service';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
 import { ContactsComponent } from './components/contacts.component';
-import { MOCK_CONTACTS } from '../../shared/mock-data/mock-contacts';
 import { Contact } from '../../models/contact.model';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Observable, Subject } from 'rxjs';
+import { CardsService } from '../../api/cards.service';
+import { ContactsService } from '../../api/contacts.service';
+import { TransferService } from '../../api/transfer.service';
+import { switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'ft-transfer',
@@ -42,7 +45,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 
         <mat-form-field appearance="fill" class="w-100">
           <mat-select formControlName="card">
-            <mat-option *ngFor="let card of cards" [value]="card._id">{{ card.number }}</mat-option>
+            <mat-option *ngFor="let card of cards$ | async" [value]="card._id">{{ card.number }}</mat-option>
           </mat-select>
           <mat-label>Seleziona carta</mat-label>
         </mat-form-field>
@@ -57,11 +60,10 @@ import { MatDialogRef } from '@angular/material/dialog';
       </form>
     </mat-card>
   `,
-  styles: [],
 })
-export class TransferComponent {
-  public cards: Card[] = MOCK_CARDS;
-  public contacts: Contact[] = MOCK_CONTACTS;
+export class TransferComponent implements OnInit, OnDestroy {
+  public cards$: Observable<Card[]> | null = null;
+  public contacts: Contact[] = [];
   public transferForm = this.fb.group({
     name: ['', Validators.required],
     surname: ['', Validators.required],
@@ -69,12 +71,26 @@ export class TransferComponent {
     amount: ['', Validators.required],
     card: ['', Validators.required],
   });
+  private destroy$ = new Subject();
 
   constructor(
     private fb: FormBuilder,
     private dialogService: DialogService,
-    private snackBarService: SnackBarService
+    private snackBarService: SnackBarService,
+    private cardService: CardsService,
+    private contactService: ContactsService,
+    private transferService: TransferService,
   ) { }
+
+  public ngOnInit(): void {
+    this.cards$ = this.cardService.getAll();
+    this.getContacts();
+  }
+
+  public ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   public transferMoney(): void {
     const dialogRef = this.dialogService.openDefaultDialog(
@@ -88,49 +104,66 @@ export class TransferComponent {
 
     dialogRef.afterClosed().subscribe((res: boolean) => {
       if (res) {
-        console.log(this.transferForm.value);
-        this.snackBarService.openDefaultSnackBar('Operazione avvenuta con successo!');
-        this.transferForm.reset();
+        this.transferService.transferMoney(this.transferForm.value).subscribe(() => {
+          this.snackBarService.openDefaultSnackBar('Operazione avvenuta con successo!');
+          this.transferForm.reset();
+        });
       }
     })
   }
 
   public openContact(): void {
-    const dialogRef: MatDialogRef<ContactsComponent> = this.dialogService.openCustomDialog(ContactsComponent, this.contacts);
+    const dialogRef: MatDialogRef<ContactsComponent> = this.dialogService.openCustomDialog(ContactsComponent);
+    dialogRef.componentInstance.contacts = this.contacts;
 
-    dialogRef.componentInstance.deleteContact.subscribe((contactId: string) => {
-      this.contacts = this.contacts.filter(card => card._id !== contactId);
-      this.refreshContacts(dialogRef);
+    this.deleteContact(dialogRef);
+    this.editContact(dialogRef);
+    this.addContact(dialogRef);
+    this.selectContact(dialogRef);
+  }
+
+  private getContacts(dialogRef?: MatDialogRef<ContactsComponent>): void {
+    this.contactService.getAll().subscribe(contacts => {
+      this.contacts = contacts;
+      dialogRef && this.refreshDialog(dialogRef);
     });
+  }
 
-    dialogRef.componentInstance.editContact.subscribe((contact: Contact) => {
-      this.contacts = this.contacts.map(c => c._id === contact._id ? contact : c);
-      this.refreshContacts(dialogRef);
-    });
+  private editContact(dialogRef: MatDialogRef<ContactsComponent>): void {
+    dialogRef.componentInstance.editContact.pipe(
+      switchMap(contact => this.contactService.updateContact(contact)),
+      takeUntil(this.destroy$),
+    ).subscribe(() => this.getContacts(dialogRef));
+  }
 
-    dialogRef.componentInstance.addContact.subscribe((contact: Omit<Contact, '_id'>) => {
-      const _id = `_${Math.random().toString(36).substr(2, 9)}`;
-      const newContact: Contact = {...contact, _id };
-      this.contacts = [...this.contacts, newContact];
-      this.refreshContacts(dialogRef);
-    });
+  private deleteContact(dialogRef: MatDialogRef<ContactsComponent>): void {
+    dialogRef.componentInstance.deleteContact.pipe(
+      switchMap(contactId => this.contactService.deleteContact(contactId)),
+      takeUntil(this.destroy$),
+    ).subscribe(() => this.getContacts(dialogRef));
+  }
 
-    dialogRef.afterClosed().subscribe((selectedContactId: string) => {
+  private addContact(dialogRef: MatDialogRef<ContactsComponent>): void {
+    dialogRef.componentInstance.addContact.pipe(
+      switchMap(contact => this.contactService.addContact(contact)),
+      takeUntil(this.destroy$),
+    ).subscribe(() => this.getContacts(dialogRef))
+  }
+
+  private selectContact(dialogRef: MatDialogRef<ContactsComponent>): void {
+    dialogRef.afterClosed().pipe(
+      takeUntil(this.destroy$),
+    ).subscribe((selectedContactId: string) => {
       if (selectedContactId) {
         const selectedContact = this.contacts.find(c => c._id === selectedContactId);
-        if (selectedContact) {
-          this.transferForm.patchValue({
-            name: selectedContact.name,
-            surname: selectedContact.surname,
-            iban: selectedContact.iban,
-          });
-
-        }
+        selectedContact && this.transferForm.patchValue(selectedContact);
       }
     });
   }
 
-  private refreshContacts(dialogRef: MatDialogRef<ContactsComponent>): void {
+  private refreshDialog(dialogRef: MatDialogRef<ContactsComponent>): void {
     dialogRef.componentInstance.contacts = this.contacts;
+    dialogRef.componentInstance.showList = true;
+    dialogRef.componentInstance.refreshTemplate();
   }
 }

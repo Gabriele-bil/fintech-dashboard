@@ -14,38 +14,43 @@ import { Contact } from '../../../models/contact.model';
 
     <mat-list class="w-100">
       <div mat-subheader>Contatti</div>
-      <div *ngFor="let contact of contacts | filter: searchElement.value">
-        <mat-grid-list cols="9">
-          <mat-grid-tile [colspan]="1">
-            <mat-icon>person</mat-icon>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="5">
-            <div>
-              <p class="mb-0">{{ contact.name }} {{ contact.surname }}</p>
-              <p class="mb-0">{{ contact.iban }}</p>
-            </div>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="1">
-            <button mat-icon-button (click)="selectContact.emit(contact._id)">
-              <mat-icon>done</mat-icon>
-            </button>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="1">
-            <button mat-icon-button (click)="editContact.emit(contact)">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </mat-grid-tile>
-          <mat-grid-tile [colspan]="1">
-            <button mat-icon-button (click)="deleteContact.emit(contact._id)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-grid-tile>
-        </mat-grid-list>
-      </div>
+      <ng-container *ngIf="contacts.length; else noContacts">
+        <div *ngFor="let contact of contacts | filter: searchElement.value">
+          <mat-grid-list cols="9">
+            <mat-grid-tile [colspan]="1">
+              <mat-icon>person</mat-icon>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="5">
+              <div>
+                <p class="mb-0">{{ contact.name }} {{ contact.surname }}</p>
+                <p class="mb-0">{{ contact.iban }}</p>
+              </div>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1">
+              <button mat-icon-button (click)="selectContact.emit(contact._id)">
+                <mat-icon>done</mat-icon>
+              </button>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1">
+              <button mat-icon-button (click)="editContact.emit(contact)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </mat-grid-tile>
+            <mat-grid-tile [colspan]="1">
+              <button mat-icon-button (click)="deleteContact.emit(contact._id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-grid-tile>
+          </mat-grid-list>
+        </div>
+      </ng-container>
+      <ng-template #noContacts>
+        <p>Non sono presenti contatti</p>
+      </ng-template>
     </mat-list>
   `,
   styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactListComponent {
   @Input() contacts: Contact[] = [];

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { DialogComponent } from '../components/dialog.component';
 import { TruncatePipe } from '../pipes/truncate.pipe';
 import { MaterialModule } from './material.module';
+import { DialogService } from '../services/dialog.service';
+import { SnackBarService } from '../services/snack-bar.service';
 
 const sharedDeclarations = [DialogComponent, TruncatePipe];
 
@@ -10,8 +12,9 @@ const sharedDeclarations = [DialogComponent, TruncatePipe];
   declarations: [...sharedDeclarations],
   imports: [
     CommonModule,
-    MaterialModule
+    MaterialModule,
   ],
   exports: [...sharedDeclarations, MaterialModule],
+  providers: [DialogService, SnackBarService],
 })
 export class SharedModule { }

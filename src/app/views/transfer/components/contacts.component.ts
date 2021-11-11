@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Output } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Contact } from '../../../models/contact.model';
 
 @Component({
@@ -41,33 +48,35 @@ import { Contact } from '../../../models/contact.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactsComponent {
+  @Input() contacts: Contact[] = [];
+  @Input() showList = true;
+
   @Output() deleteContact = new EventEmitter<string>();
   @Output() addContact = new EventEmitter<Omit<Contact, '_id'>>();
   @Output() editContact = new EventEmitter<Contact>();
 
-  public showList = true;
   public selectedContact: Contact | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<ContactsComponent>,
-    @Inject(MAT_DIALOG_DATA) public contacts: Contact[],
-  ) {
-  }
+    private changeDetection: ChangeDetectorRef,
+  ) { }
 
   public toggleShowList(): void {
     this.showList = !this.showList;
   }
 
   public saveContactHandler(contact: Omit<Contact, '_id'>): void {
-    if (this.selectedContact) {
-      this.editContact.emit({ ...contact, _id: this.selectedContact._id });
-      this.toggleShowList();
-    } else {
-      this.addContact.emit(contact);
-    }
+    this.selectedContact
+    ? this.editContact.emit({ ...contact, _id: this.selectedContact._id })
+    : this.addContact.emit(contact);
   }
 
   public selectContactHandler(contactId: string): void {
     this.dialogRef.close(contactId);
+  }
+
+  public refreshTemplate(): void {
+    this.changeDetection.detectChanges(); // TODO Da togliere
   }
 }

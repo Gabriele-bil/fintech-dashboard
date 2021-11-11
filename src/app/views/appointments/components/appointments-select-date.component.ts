@@ -15,6 +15,7 @@ import { FormControl } from '@angular/forms';
 import { DayWithSlot, Slot } from '../../../models/day-with-slot';
 import * as L from 'leaflet'
 import { Location } from '../../../models/location.model';
+import { dateToString } from '../../../shared/helpers';
 
 @Component({
   selector: 'ft-appointments-select-date',
@@ -49,34 +50,32 @@ import { Location } from '../../../models/location.model';
       cursor: pointer;
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppointmentsSelectDateComponent implements OnInit, OnChanges {
   @ViewChild('host', { static: true }) host!: ElementRef<HTMLDivElement>;
-  @Input() slots: DayWithSlots[] = [];
+  @Input() slotsDay: DayWithSlots[] | null = [];
   @Input() location: Location | null = null;
   @Output() selectedDayWithSlot = new EventEmitter<DayWithSlot>();
 
   public dateInput = new FormControl('');
   public hours: Slots = [];
-  public filterSlots = (d: Date | null): boolean => {
-    const day = (d || new Date()).getDate();
-    return !!this.slots.find(slot => {
-      return new Date(slot.day).getDate() === day
-    });
-  };
-
   public map!: L.Map;
   public marker!: L.Marker;
 
+  public filterSlots = (d: Date | null): boolean => {
+    if (d) {
+      const day = dateToString(d);
+      return d?.getTime() >= new Date().getTime()
+        && !!this.slotsDay?.find(slotDay => slotDay.day === day)
+    }
+    return false
+  };
+
   public ngOnInit(): void {
     this.dateInput.valueChanges.subscribe((d: Date) => {
-      // Date picker restituisce la data un giorno prima
-      const date = this.clearTimeZone(d).toISOString();
-      const day = this.slots.find(slot => slot.day === date.substring(0,10));
-      if (day) {
-        this.hours = day.slots;
-      }
+      const day = this.slotsDay?.find(slot => d.toISOString() === new Date(slot.day).toISOString());
+      this.hours = day ? day.slots : [];
     })
   }
 
@@ -86,7 +85,7 @@ export class AppointmentsSelectDateComponent implements OnInit, OnChanges {
       this.map = L.map(this.host.nativeElement).setView(coords, 5);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(
-        this.map
+        this.map,
       );
 
       this.marker = L.marker(coords)
@@ -105,11 +104,9 @@ export class AppointmentsSelectDateComponent implements OnInit, OnChanges {
 
   public selectedDay(slot: Slot): void {
     const dayWithSlot: DayWithSlot = {
-      day: this.clearTimeZone(this.dateInput.value).toISOString().substring(0,10),
-      slot
+      day: this.dateInput.value.toISOString().substring(0, 10),
+      slot,
     };
     this.selectedDayWithSlot.emit(dayWithSlot);
   }
-
-  private clearTimeZone = (d: Date): Date => new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() - d.getTimezoneOffset());
 }

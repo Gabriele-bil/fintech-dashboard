@@ -1,20 +1,20 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Location } from '../../models/location.model';
-import { MOCK_LOCATIONS } from '../../shared/mock-data/mock-locations';
 import { DayWithSlots } from '../../models/day-with-slots.model';
-import { MOCK_SLOTS } from '../../shared/mock-data/mock-slots';
 import { DialogService } from '../../shared/services/dialog.service';
 import { DayWithSlot } from '../../models/day-with-slot';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
-import { MatSidenav } from '@angular/material/sidenav';
+import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
+import { AppointmentsService } from '../../api/appointments.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'ft-appointments',
   template: `
     <mat-drawer-container autosize id="container">
       <ft-appointments-list
-        [locations]="locations"
-        (selectedLocation)="selectedLocation = $event; drawer.open()"
+        [locations]="locations$ | async"
+        (selectedLocation)="selectLocation($event, drawer)"
       >
       </ft-appointments-list>
 
@@ -22,7 +22,7 @@ import { MatSidenav } from '@angular/material/sidenav';
         <ft-appointments-select-date
           *ngIf="selectedLocation"
           [location]="selectedLocation"
-          [slots]="slots"
+          [slotsDay]="slots"
           (selectedDayWithSlot)="openConfirmDialog($event)"
         >
         </ft-appointments-select-date>
@@ -35,17 +35,22 @@ import { MatSidenav } from '@angular/material/sidenav';
     }
   `],
 })
-export class AppointmentsComponent {
+export class AppointmentsComponent implements OnInit {
   @ViewChild('drawer') drawer!: MatSidenav;
 
-  public locations: Location[] = MOCK_LOCATIONS;
-  public slots: DayWithSlots[] = MOCK_SLOTS;
+  public locations$: Observable<Location[]> | null = null;
+  public slots: DayWithSlots[] = [];
   public selectedLocation: Location | null = null;
 
   constructor(
     private dialogService: DialogService,
     private snackBarService: SnackBarService,
+    private appointmentsService: AppointmentsService,
   ) { }
+
+  public ngOnInit(): void {
+    this.getLocation();
+  }
 
   public openConfirmDialog(dayWithSlot: DayWithSlot): void {
     const dialogRef = this.dialogService.openDefaultDialog({
@@ -57,9 +62,26 @@ export class AppointmentsComponent {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.snackBarService.openDefaultSnackBar('Appuntamento confermato');
-        this.drawer.close();
+        this.appointmentsService.scheduleAppointment(dayWithSlot).subscribe((res) => {
+          if (res) {
+            this.snackBarService.openDefaultSnackBar('Appuntamento confermato');
+            this.drawer.close();
+            this.getLocation();
+          }
+        })
       }
     });
+  }
+
+  public selectLocation(location: Location, drawer: MatDrawer): void {
+    this.appointmentsService.getSlotsByLocationId(location._id).subscribe(slots => {
+      this.slots = slots;
+      drawer.open();
+      this.selectedLocation = location;
+    });
+  }
+
+  private getLocation(): void {
+    this.locations$ = this.appointmentsService.getAllLocations();
   }
 }

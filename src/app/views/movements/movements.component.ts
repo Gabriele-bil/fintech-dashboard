@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Card } from '../../models/card.model';
-import { MOCK_CARDS } from '../../shared/mock-data/mock-cards';
-import { Movement } from '../../models/movement.model';
-import { MOCK_MOVEMENTS } from '../../shared/mock-data/mock-movments';
+import { PaginatedMovements } from '../../models/movement.model';
 import { FormControl } from '@angular/forms';
+import { CardsService } from '../../api/cards.service';
 
 @Component({
   selector: 'ft-movements',
@@ -20,9 +19,9 @@ import { FormControl } from '@angular/forms';
 
       <h2>Saldo: {{ balance | currency: 'EUR' }}</h2>
 
-      <ng-container *ngIf="allMovementsOfSelectedCard.length; else noMovement">
+      <ng-container *ngIf="movements && movements.data.length; else noMovement">
         <ft-movement
-          *ngFor="let movement of currentMovementsOfSelectedCard"
+          *ngFor="let movement of movements.data"
           [movementTimeStamp]="movement.timestamp"
           [movementType]="movement.type"
           [movementAmount]="movement.amount"
@@ -30,41 +29,45 @@ import { FormControl } from '@angular/forms';
           [movementDescription]="movement.description"
         >
         </ft-movement>
+
+        <button
+          *ngIf="movements.data.length < movements.total" mat-button class="w-100"
+          (click)="loadMovements()"
+        >
+          Carica altro
+        </button>
       </ng-container>
 
-      <button
-        *ngIf="allMovementsOfSelectedCard.length > (5 * page)" mat-button class="w-100"
-              (click)="loadMovements()"
-      >
-        Carica altro
-      </button>
-
       <ng-template #noMovement>
-        <p>Non sono presenti movimenti per questa carta</p>
+        <p>Non sono ancora presenti movimenti per questa carta</p>
       </ng-template>
     </mat-card>
   `,
-  styles: []
+  styles: [],
 })
 export class MovementsComponent implements OnInit {
-  public cards: Card[] = MOCK_CARDS;
-  public movements: Movement[] = MOCK_MOVEMENTS;
-  public allMovementsOfSelectedCard: Movement[] = [];
-  public currentMovementsOfSelectedCard: Movement[] = [];
+  public cards: Card[] = [];
+  public movements: PaginatedMovements | null = null;
   public balance = 0;
-  public page = 1;
-  public cardInput = new FormControl(this.cards[0]._id);
-  public showAll = false;
+  public cardInput = new FormControl('');
+  private page = 0;
+
+  constructor(private cardsService: CardsService) { }
 
   ngOnInit(): void {
-    this.selectCard();
+    this.cardsService.getAll().subscribe(cards => this.cards = cards);
   }
 
   public selectCard(): void {
-    this.showAll = false;
-    this.allMovementsOfSelectedCard = this.movements.filter(m => m.cardId === this.cardInput.value);
-    this.currentMovementsOfSelectedCard = this.allMovementsOfSelectedCard.slice(0,5);
+    this.page = 0;
+    this.movements = null;
+    this.getMovements();
     this.setBalance();
+  }
+
+  public loadMovements(): void {
+    this.page++;
+    this.getMovements();
   }
 
   private setBalance(): void {
@@ -74,8 +77,11 @@ export class MovementsComponent implements OnInit {
     }
   }
 
-  public loadMovements(): void {
-    this.page++;
-    this.currentMovementsOfSelectedCard = this.allMovementsOfSelectedCard.slice(0, (5 * this.page));
+  private getMovements(): void {
+    this.cardsService.getCardMovements(this.cardInput.value, 5, this.page * 5).subscribe(movements => {
+      this.movements?.data
+      ? this.movements = { ...this.movements, data: [...this.movements?.data, ...movements.data] }
+      : this.movements = movements;
+    });
   }
 }

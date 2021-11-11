@@ -25,9 +25,9 @@ import { Location } from '../../../models/location.model';
       color: #afafaf;
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppointmentsListComponent {
-  @Input() locations: Location[] = [];
+  @Input() locations: Location[] | null = [];
   @Output() selectedLocation = new EventEmitter<Location>();
 }
