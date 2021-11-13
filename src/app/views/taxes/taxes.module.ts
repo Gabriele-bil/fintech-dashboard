@@ -8,6 +8,7 @@ import { SharedModule } from '../../shared/modules/shared.module';
 import { TreasuryComponent } from './components/treasury.component';
 import { InpsComponent } from './components/inps.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SelectCardDialogComponent } from './components/select-card-dialog.component';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     TaxesComponent,
     TaxpayerComponent,
     TreasuryComponent,
-    InpsComponent
+    InpsComponent,
+    SelectCardDialogComponent
   ],
   imports: [
     CommonModule,

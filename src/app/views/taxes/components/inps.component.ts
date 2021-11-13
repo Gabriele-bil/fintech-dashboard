@@ -65,7 +65,7 @@ import { INPSErrorStateMatcher } from '../utility/inps-error-state-matcher';
             </mat-grid-tile>
 
             <mat-grid-tile [colspan]="1">
-              <button mat-fab color="warn" (click)="removeInpsGroup.emit(i)">
+              <button mat-mini-fab color="warn" (click)="removeInpsGroup.emit(i)">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-grid-tile>
@@ -76,7 +76,7 @@ import { INPSErrorStateMatcher } from '../utility/inps-error-state-matcher';
           </mat-error>
         </ng-container>
 
-        <button mat-fab color="primary" (click)="addInpsGroup.emit()">
+        <button mat-mini-fab color="accent" (click)="addInpsGroup.emit()">
           <mat-icon>add</mat-icon>
         </button>
       </ng-container>

@@ -39,14 +39,14 @@ import { FormArray, FormGroup } from '@angular/forms';
             </mat-grid-tile>
 
             <mat-grid-tile [colspan]="1">
-              <button mat-fab color="warn" (click)="removeErarioGroup.emit(i)">
+              <button mat-mini-fab color="warn" (click)="removeErarioGroup.emit(i)">
                 <mat-icon>delete</mat-icon>
               </button>
             </mat-grid-tile>
           </mat-grid-list>
         </ng-container>
 
-        <button mat-fab color="primary" (click)="addErarioGroup.emit()">
+        <button mat-mini-fab color="accent" (click)="addErarioGroup.emit()">
           <mat-icon>add</mat-icon>
         </button>
       </ng-container>

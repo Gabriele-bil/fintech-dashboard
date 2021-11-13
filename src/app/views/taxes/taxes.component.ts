@@ -1,10 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { fiscalCodeValidator } from '../../shared/validators/fiscal-code.validator';
 import { inpsValidators } from '../../shared/validators/inpsValidators';
 import { TaxesService } from '../../api/taxes.service';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
 import { INPSErrorStateMatcher } from './utility/inps-error-state-matcher';
+import { DialogService } from '../../shared/services/dialog.service';
+import { SelectCardDialogComponent } from './components/select-card-dialog.component';
+import { switchMap, tap } from 'rxjs/operators';
+import { Card } from '../../models/card.model';
+import { of } from 'rxjs';
+import { CardsService } from '../../api/cards.service';
 
 @Component({
   selector: 'ft-taxes',
@@ -41,7 +47,7 @@ import { INPSErrorStateMatcher } from './utility/inps-error-state-matcher';
   `,
   styles: [],
 })
-export class TaxesComponent {
+export class TaxesComponent implements OnInit {
   public taxesForm = this.fb.group({
     contribuente: this.fb.group({
       codiceFiscale: ['BLLGRL95T14G273L', [Validators.required, fiscalCodeValidator]],
@@ -56,12 +62,16 @@ export class TaxesComponent {
     inps: this.fb.array([]),
   });
   public inpsMatcher = new INPSErrorStateMatcher();
+  private cards: Card[] = [];
 
   constructor(
     private fb: FormBuilder,
     private taxesService: TaxesService,
-    private snackBarService: SnackBarService
-  ) { }
+    private snackBarService: SnackBarService,
+    private dialogService: DialogService,
+    private cardService: CardsService,
+  ) {
+  }
 
   public get contribuenteForm(): FormGroup {
     return this.taxesForm.get('contribuente') as FormGroup;
@@ -75,12 +85,16 @@ export class TaxesComponent {
     return this.taxesForm.get('inps') as FormArray;
   }
 
+  public ngOnInit(): void {
+    this.cardService.getAll().subscribe(cards => this.cards = cards);
+  }
+
   public addErario(): void {
     const erarioGroup = this.fb.group({
-      codiceTributo: ['', [Validators.required]],
-      anno: ['', [Validators.required]],
-      debito: ['', [Validators.required]],
-      credito: ['', [Validators.required]],
+      codiceTributo: ['asd', [Validators.required]],
+      anno: ['asd', [Validators.required]],
+      debito: ['asd', [Validators.required]],
+      credito: ['asd', [Validators.required]],
     });
     this.erario.push(erarioGroup);
   }
@@ -91,13 +105,13 @@ export class TaxesComponent {
 
   public addInps(): void {
     const inpsGroup = this.fb.group({
-      codiceSede: ['', [Validators.required]],
-      causaleContributo: ['', [Validators.required]],
-      codiceInps: ['', [Validators.required]],
+      codiceSede: ['asd', [Validators.required]],
+      causaleContributo: ['asd', [Validators.required]],
+      codiceInps: ['asd', [Validators.required]],
       da: ['', [Validators.required]],
       a: ['', [Validators.required]],
-      debito: ['', [Validators.required]],
-      credito: ['', [Validators.required]],
+      debito: ['asd', [Validators.required]],
+      credito: ['asd', [Validators.required]],
     }, { validators: [inpsValidators] });
     this.inps.push(inpsGroup);
   }
@@ -108,11 +122,21 @@ export class TaxesComponent {
 
   public send(): void {
     if (this.taxesForm.valid && this.erario.controls.length && this.inps.controls.length) {
-      this.taxesService.addTaxes(this.taxesForm.value).subscribe(() => {
-        this.taxesForm.reset();
-        this.inps.clear();
-        this.erario.clear();
-      },
+      const dialogRef = this.dialogService.openCustomDialog(SelectCardDialogComponent, [...this.cards]);
+      dialogRef.afterClosed().pipe(
+        tap(result => console.log(result)),
+        switchMap((result: Card) =>
+          (result)
+          ? this.taxesService.addTaxes(this.taxesForm.value)
+          : of(null),
+        ),
+      ).subscribe((res) => {
+          if (res) {
+            this.taxesForm.reset();
+            this.inps.clear();
+            this.erario.clear();
+          }
+        },
         () => this.snackBarService.openDefaultSnackBar(`C'è stato un errore, riprova`, 'chiudi'));
     }
   }

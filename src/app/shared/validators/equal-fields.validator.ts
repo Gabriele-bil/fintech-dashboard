@@ -5,7 +5,7 @@ export const equalFieldsValidator = (fGroup: AbstractControl, firstInput: string
   const firstValue = fGroup.get(firstInput)?.value;
   const secondValue = fGroup.get(secondInput)?.value;
 
-  return firstValue === secondValue ? null : { equalFields: true };
+  return firstValue === secondValue ? null : { equalFields: 'Le due password non coincidono' };
 }
 
 @Directive({

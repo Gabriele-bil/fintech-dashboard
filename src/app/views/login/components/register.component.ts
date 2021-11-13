@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RegisterErrorStateMatcher } from '../utility/register-error-state-matcher';
 
 @Component({
   selector: 'ft-register',
@@ -48,6 +49,7 @@ import { Component } from '@angular/core';
           [type]="hidePassword ? 'password' : 'text'"
           [ngModel] #password="ngModel"
           name="password" minlength="6" required
+          [errorStateMatcher]="errorStateMatcher"
         >
         <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
           <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -68,6 +70,7 @@ import { Component } from '@angular/core';
           [type]="hideConfirmPassword ? 'password' : 'text'"
           [ngModel] #confirmPassword="ngModel"
           name="confirmPassword" minlength="6" required
+          [errorStateMatcher]="errorStateMatcher"
         >
         <button type="button" mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">
           <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -102,13 +105,13 @@ import { Component } from '@angular/core';
 export class RegisterComponent {
   public hidePassword = true;
   public hideConfirmPassword = true;
+  public errorStateMatcher = new RegisterErrorStateMatcher();
 
   public createUser(
     user: { email: string, name: string, surname: string, password: string, confirmPassword: string },
     invalid: boolean | null,
   ) {
     if (!invalid) {
-      //TODO controllare che le password siano uguali
       console.log(user);
     }
   }
