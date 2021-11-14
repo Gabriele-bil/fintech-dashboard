@@ -1,21 +1,20 @@
 import { Component } from '@angular/core';
 import { RegisterErrorStateMatcher } from '../utility/register-error-state-matcher';
+import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'ft-register',
   template: `
     <form
-      #f="ngForm" (ngSubmit)="createUser(f.value, f.invalid)"
-      equalFields [equalFieldsFirstInput]="'password'"
-      [equalFieldsSecondInput]="'confirmPassword'"
+      [formGroup]="registerForm"
+      (ngSubmit)="createUser()"
     >
       <mat-form-field class="w-100 mb-3" appearance="fill">
         <mat-label>Email</mat-label>
         <input
           type="email" matInput
-          placeholder="Ex. pat@example.com"
-          [ngModel] name="email" required
-          #email="ngModel" email
+          placeholder="Ex. gabriele@mail.com"
+          formControlName="email"
         >
         <mat-error *ngIf="email.touched && email.errors?.email">Inserire una mail valida</mat-error>
         <mat-error *ngIf="email.touched && email.errors?.required">Email richiesta</mat-error>
@@ -25,8 +24,7 @@ import { RegisterErrorStateMatcher } from '../utility/register-error-state-match
         <mat-label>Nome</mat-label>
         <input
           type="text" matInput
-          [ngModel] name="name" required
-          #name="ngModel"
+          formControlName="name"
         >
         <mat-error *ngIf="name.touched && name.errors?.required">Nome richiesto</mat-error>
       </mat-form-field>
@@ -35,8 +33,7 @@ import { RegisterErrorStateMatcher } from '../utility/register-error-state-match
         <mat-label>Cognome</mat-label>
         <input
           type="text" matInput
-          [ngModel] name="surname" required
-          #surname="ngModel"
+          formControlName="surname"
         >
         <mat-error *ngIf="surname.touched && surname.errors?.required">Cognome richiesto</mat-error>
       </mat-form-field>
@@ -47,12 +44,11 @@ import { RegisterErrorStateMatcher } from '../utility/register-error-state-match
         <input
           matInput
           [type]="hidePassword ? 'password' : 'text'"
-          [ngModel] #password="ngModel"
-          name="password" minlength="6" required
+          formControlName="password"
           [errorStateMatcher]="errorStateMatcher"
         >
-        <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
-          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword" tabindex="-1">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         <mat-error *ngIf="password.touched && password.errors?.minlength">
           La password deve essere minimo di {{ password.errors?.minlength.requiredLength }} caratteri.
@@ -68,11 +64,11 @@ import { RegisterErrorStateMatcher } from '../utility/register-error-state-match
         <input
           matInput
           [type]="hideConfirmPassword ? 'password' : 'text'"
-          [ngModel] #confirmPassword="ngModel"
-          name="confirmPassword" minlength="6" required
+          formControlName="confirmPassword"
           [errorStateMatcher]="errorStateMatcher"
         >
-        <button type="button" mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword">
+        <button type="button" mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword"
+                tabindex="-1">
           <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
         <mat-error *ngIf="confirmPassword.touched && confirmPassword.errors?.minlength">
@@ -86,33 +82,60 @@ import { RegisterErrorStateMatcher } from '../utility/register-error-state-match
         </mat-error>
       </mat-form-field>
 
-      <mat-error *ngIf="confirmPassword.touched && password.touched && f.getError('equalFields')">
+      <!-- TODO ngIf Aggiungere validatore equalfields -->
+      <mat-error>
         Le due password non coincidono
       </mat-error>
 
       <button
         mat-raised-button color="primary"
         class="w-100 mt-3" type="submit"
-        [disabled]="f.invalid || password.value !== confirmPassword.value"
-      >Accedi
+        [disabled]="!registerForm.valid"
+      >Registrati
       </button>
     </form>
 
     <a mat-button color="accent" routerLink="/login/signin">Hai già un account? Accedi</a>
   `,
-  styles: [],
 })
 export class RegisterComponent {
   public hidePassword = true;
   public hideConfirmPassword = true;
   public errorStateMatcher = new RegisterErrorStateMatcher();
 
-  public createUser(
-    user: { email: string, name: string, surname: string, password: string, confirmPassword: string },
-    invalid: boolean | null,
-  ) {
-    if (!invalid) {
-      console.log(user);
+  public registerForm = this.fb.group({
+    email: ['', [Validators.email, Validators.required]],
+    name: ['', [Validators.required]],
+    surname: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required, Validators.minLength(6)]],
+  });
+
+  constructor(private fb: FormBuilder) { }
+
+  public get email(): AbstractControl {
+    return this.registerForm.get('email')!;
+  }
+
+  public get name(): AbstractControl {
+    return this.registerForm.get('name')!;
+  }
+
+  public get surname(): AbstractControl {
+    return this.registerForm.get('surname')!;
+  }
+
+  public get password(): AbstractControl {
+    return this.registerForm.get('password')!;
+  }
+
+  public get confirmPassword(): AbstractControl {
+    return this.registerForm.get('confirmPassword')!;
+  }
+
+  public createUser() {
+    if (this.registerForm.valid) {
+      console.log(this.registerForm.value);
     }
   }
 
