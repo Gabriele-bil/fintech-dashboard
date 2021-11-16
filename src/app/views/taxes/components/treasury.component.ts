@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
+import { TotalsInput } from '../../../models/totals-input.model';
 
 @Component({
   selector: 'ft-treasury',
@@ -46,6 +47,13 @@ import { FormArray, FormGroup } from '@angular/forms';
           </mat-grid-list>
         </ng-container>
 
+        <mat-grid-list cols="9" rowHeight="30px" *ngIf="totaliErario && erarioForm.controls.length">
+          <mat-grid-tile [colspan]="4"></mat-grid-tile>
+          <mat-grid-tile [colspan]="2">Totale a debito: {{ totaliErario.debito | currency:'EUR' }}</mat-grid-tile>
+          <mat-grid-tile [colspan]="2">Totale a credito: {{ totaliErario.credito | currency:'EUR' }}</mat-grid-tile>
+          <mat-grid-tile [colspan]="1"></mat-grid-tile>
+        </mat-grid-list>
+
         <button mat-mini-fab color="accent" (click)="addErarioGroup.emit()">
           <mat-icon>add</mat-icon>
         </button>
@@ -57,6 +65,7 @@ import { FormArray, FormGroup } from '@angular/forms';
 export class TreasuryComponent {
   @Input() taxesForm!: FormGroup;
   @Input() erarioForm!: FormArray;
+  @Input() totaliErario: TotalsInput | null = null;
   @Output() addErarioGroup = new EventEmitter<void>();
   @Output() removeErarioGroup = new EventEmitter<number>();
 }

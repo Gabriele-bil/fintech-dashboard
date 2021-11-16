@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { INPSErrorStateMatcher } from '../utility/inps-error-state-matcher';
+import { TotalsInput } from '../../../models/totals-input.model';
 
 @Component({
   selector: 'ft-inps',
@@ -76,6 +77,13 @@ import { INPSErrorStateMatcher } from '../utility/inps-error-state-matcher';
           </mat-error>
         </ng-container>
 
+        <mat-grid-list cols="15" rowHeight="30px" *ngIf="totaliInps && inpsForm.controls.length">
+          <mat-grid-tile [colspan]="10"></mat-grid-tile>
+          <mat-grid-tile [colspan]="2">Totale a debito: {{ totaliInps.debito | currency:'EUR' }}</mat-grid-tile>
+          <mat-grid-tile [colspan]="2">Totale a credito: {{ totaliInps.credito | currency:'EUR' }}</mat-grid-tile>
+          <mat-grid-tile [colspan]="1"></mat-grid-tile>
+        </mat-grid-list>
+
         <button mat-mini-fab color="accent" (click)="addInpsGroup.emit()">
           <mat-icon>add</mat-icon>
         </button>
@@ -87,6 +95,7 @@ import { INPSErrorStateMatcher } from '../utility/inps-error-state-matcher';
 export class InpsComponent {
   @Input() taxesForm!: FormGroup;
   @Input() inpsForm!: FormArray;
+  @Input() totaliInps: TotalsInput | null = null;
   @Input() inpsMatcher: INPSErrorStateMatcher = new INPSErrorStateMatcher();
   @Output() addInpsGroup = new EventEmitter<void>();
   @Output() removeInpsGroup = new EventEmitter<number>();
