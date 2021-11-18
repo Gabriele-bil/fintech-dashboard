@@ -12,12 +12,18 @@ import { Card } from '../../models/card.model';
 import { combineLatest, Observable, of } from 'rxjs';
 import { CardsService } from '../../api/cards.service';
 import { TotalsInput } from '../../models/totals-input.model';
+import { ComuniService } from '../../api/comuni.service';
+import { Comune } from '../../models/comuni.model';
 
 @Component({
   selector: 'ft-taxes',
   template: `
     <form [formGroup]="taxesForm" class="p-3" (ngSubmit)="send()">
-      <ft-taxpayer [contribuente]="contribuenteForm"></ft-taxpayer>
+      <ft-taxpayer
+        [contribuente]="contribuenteForm"
+        [comuni]="comuni$ | async"
+      >
+      </ft-taxpayer>
       <div class="my-4">
         <ft-treasury
           [taxesForm]="taxesForm"
@@ -92,12 +98,15 @@ export class TaxesComponent implements OnInit {
     map(([erario, inps]) => (erario.credito + inps.credito) - (erario.debito + inps.debito)),
   );
 
+  public comuni$: Observable<Comune[]> = this.comuniService.getItalianProvices();
+
   constructor(
     private fb: FormBuilder,
     private taxesService: TaxesService,
     private snackBarService: SnackBarService,
     private dialogService: DialogService,
     private cardService: CardsService,
+    private comuniService: ComuniService
   ) { }
 
   public get contribuenteForm(): FormGroup {

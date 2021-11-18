@@ -10,7 +10,9 @@ export class ApiInterceptor implements HttpInterceptor {
     const options = {
       url: `${ environment.apiUrl }${ request.url }`,
     };
-    request = request.clone(options);
+    if (!request.url.includes('http')) {
+      request = request.clone(options);
+    }
     return next.handle(request);
   }
 }
