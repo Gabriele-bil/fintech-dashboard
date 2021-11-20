@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { fiscalCodeValidator } from '../../shared/validators/fiscal-code.validator';
+import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { inpsValidators } from '../../shared/validators/inpsValidators';
 import { TaxesService } from '../../api/taxes.service';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
@@ -20,7 +19,7 @@ import { Comune } from '../../models/comuni.model';
   template: `
     <form [formGroup]="taxesForm" class="p-3" (ngSubmit)="send()">
       <ft-taxpayer
-        [contribuente]="contribuenteForm"
+        formControlName="contribuente"
         [comuni]="comuni$ | async"
       >
       </ft-taxpayer>
@@ -59,7 +58,7 @@ import { Comune } from '../../models/comuni.model';
 })
 export class TaxesComponent implements OnInit {
   public taxesForm = this.fb.group({
-    contribuente: this.fb.group({
+    /*contribuente: this.fb.group({
       codiceFiscale: ['', [Validators.required, fiscalCodeValidator]],
       cognome: ['', [Validators.required]],
       nome: ['', [Validators.required]],
@@ -68,12 +67,12 @@ export class TaxesComponent implements OnInit {
       provinciaDiNascita: ['', [Validators.required]],
       comuneDiNascita: ['', [Validators.required]],
     }),
+    }),*/
+    contribuente: [],
     erario: this.fb.array([]),
     inps: this.fb.array([]),
   });
   public inpsMatcher = new INPSErrorStateMatcher();
-  private cards: Card[] = [];
-
   public totaliErario$: Observable<TotalsInput> = this.erario.valueChanges.pipe(
     debounceTime(1000),
     map((values: TotalsInput[]) => (
@@ -83,7 +82,6 @@ export class TaxesComponent implements OnInit {
       }),
     ),
   );
-
   public totaliInps$: Observable<TotalsInput> = this.inps.valueChanges.pipe(
     debounceTime(1000),
     map((values: TotalsInput[]) => (
@@ -93,12 +91,11 @@ export class TaxesComponent implements OnInit {
       }),
     ),
   );
-
   public totale$: Observable<number> = combineLatest([this.totaliErario$, this.totaliInps$]).pipe(
     map(([erario, inps]) => (erario.credito + inps.credito) - (erario.debito + inps.debito)),
   );
-
   public comuni$: Observable<Comune[]> = this.comuniService.getItalianProvices();
+  private cards: Card[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -106,11 +103,8 @@ export class TaxesComponent implements OnInit {
     private snackBarService: SnackBarService,
     private dialogService: DialogService,
     private cardService: CardsService,
-    private comuniService: ComuniService
-  ) { }
-
-  public get contribuenteForm(): FormGroup {
-    return this.taxesForm.get('contribuente') as FormGroup;
+    private comuniService: ComuniService,
+  ) {
   }
 
   public get erario(): FormArray {
