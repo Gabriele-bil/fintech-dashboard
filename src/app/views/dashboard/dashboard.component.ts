@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../core/modules/auth/services/auth.service';
+import { UserStore } from '../../core/modules/auth/services/user-store';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'ft-dashboard',
@@ -8,7 +11,7 @@ import { Component } from '@angular/core';
         <mat-toolbar color="accent">
           <span>Menu</span>
         </mat-toolbar>
-        <ft-nav></ft-nav>
+        <ft-nav [user]="user$ | async" (logout)="logout()"></ft-nav>
       </mat-drawer>
 
       <mat-drawer-content>
@@ -24,6 +27,15 @@ import { Component } from '@angular/core';
     #container {
       min-height: 100vh;
     }
-  `]
+  `],
 })
-export class DashboardComponent { }
+export class DashboardComponent {
+  public user$ = this.userStore.user$.pipe(tap(console.log));
+
+  constructor(private authService: AuthService, private userStore: UserStore) {
+  }
+
+  public logout(): void {
+    this.authService.logout();
+  }
+}

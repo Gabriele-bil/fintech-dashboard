@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { User } from '../../../../models/user.model';
 
 @Component({
   selector: 'ft-nav',
@@ -28,10 +29,10 @@ import { Component } from '@angular/core';
         <mat-icon class="me-3">receipt</mat-icon>
         Tasse
       </mat-list-item>
-      <mat-list-item>
+      <mat-list-item (click)="logout.emit()">
         <mat-icon class="me-3">person</mat-icon>
         <div>
-          <p class="mb-0">Gabriele Bilello</p>
+          <p class="mb-0">{{ user?.displayName }}</p>
           <small>Logout</small>
         </div>
       </mat-list-item>
@@ -46,4 +47,7 @@ import { Component } from '@angular/core';
     }
   `],
 })
-export class NavComponent { }
+export class NavComponent {
+  @Input() user: User | null = null;
+  @Output() logout = new EventEmitter<void>();
+}
