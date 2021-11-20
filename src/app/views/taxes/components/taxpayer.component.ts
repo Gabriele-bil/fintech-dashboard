@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { Comune } from '../../../models/comuni.model';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { fiscalCodeValidator } from '../../../shared/validators/fiscal-code.validator';
 
 @Component({
   selector: 'ft-taxpayer',
   template: `
-    <ng-container [formGroup]="contribuente">
+    <form [formGroup]="contribuenteForm">
       <h1 class="mat-title">Contribuente</h1>
 
       <mat-form-field appearance="fill" class="w-100 mb-3">
@@ -64,38 +65,87 @@ import { Observable } from 'rxjs';
           </ng-container>
         </mat-autocomplete>
       </mat-form-field>
-    </ng-container>
+    </form>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: TaxpayerComponent,
+      multi: true,
+    },
+  ],
 })
-export class TaxpayerComponent implements OnInit {
-  @Input() contribuente!: FormGroup;
+export class TaxpayerComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() comuni: Comune[] | null = [];
+  // TODO aggiungere validator
+  public contribuenteForm: FormGroup = this.fb.group({
+    codiceFiscale: ['', [Validators.required, fiscalCodeValidator]],
+    cognome: ['', [Validators.required]],
+    nome: ['', [Validators.required]],
+    dataDiNascita: ['', [Validators.required]],
+    sesso: ['', [Validators.required]],
+    provinciaDiNascita: ['', [Validators.required]],
+    comuneDiNascita: ['', [Validators.required]],
+  });
   public today = new Date();
   public filteredProvince$!: Observable<string[]> | undefined;
   public filteredComuni$!: Observable<string[]> | undefined;
+  private destroy$ = new Subject<void>();
+
+  constructor(private fb: FormBuilder) {
+  }
 
   public ngOnInit(): void {
     // TODO Da rivedere, usando combine latest, creare una pipe (?)
-    this.filteredProvince$ = this.contribuente.get('provinciaDiNascita')?.valueChanges.pipe(
+    this.filteredProvince$ = this.contribuenteForm.get('provinciaDiNascita')?.valueChanges.pipe(
       distinctUntilChanged(),
       debounceTime(500),
       map(val => {
         const province = [...new Set(this.comuni?.map(c => c.provincia.nome))];
         return province?.filter(c => c.toLowerCase().includes(val.toLowerCase())) || []
-      })
+      }),
     );
 
-    this.filteredComuni$ = this.contribuente.get('comuneDiNascita')?.valueChanges.pipe(
+    this.filteredComuni$ = this.contribuenteForm.get('comuneDiNascita')?.valueChanges.pipe(
       distinctUntilChanged(),
       debounceTime(500),
       map(val => {
-        const selectedProvincia: string = this.contribuente.get('provinciaDiNascita')?.value;
+        const selectedProvincia: string = this.contribuenteForm.get('provinciaDiNascita')?.value;
         return this.comuni
           ?.filter(c => c.provincia.nome === selectedProvincia)
           .filter(c => c.nome.toLowerCase().includes(val.toLowerCase()))
           .map(c => c.nome) || [];
-      })
+      }),
     );
   }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+  }
+
+  public writeValue(obj: any): void {
+    this.contribuenteForm.patchValue(obj);
+  }
+
+  public setDisabledState(isDisabled: boolean): void {
+    isDisabled ? this.contribuenteForm.disable() : this.contribuenteForm.enable();
+  }
+
+  public registerOnChange(fn: any): void {
+    this.contribuenteForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(x => fn(x))
+  }
+
+  public registerOnTouched(fn: any): void {
+    this.contribuenteForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((() => fn()));
+  }
+
+  /* public validate(control: AbstractControl): ValidationErrors | null {
+     console.log(control);
+    return null;
+   }*/
 }
