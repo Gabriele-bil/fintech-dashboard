@@ -1,12 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import {
-  ControlValueAccessor,
-  FormBuilder,
-  FormGroup,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  Validators,
-} from '@angular/forms';
+import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { fiscalCodeValidator } from '../../../shared/validators/fiscal-code.validator';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -65,15 +58,10 @@ import { takeUntil } from 'rxjs/operators';
       useExisting: TaxpayerComponent,
       multi: true,
     },
-    {
-      provide: NG_VALIDATORS,
-      useExisting: TaxpayerComponent,
-      multi: true,
-    },
   ],
 })
 export class TaxpayerComponent implements OnDestroy, ControlValueAccessor {
-  //TODO Aggiungere validatore
+  // TODO aggiungere validator
   public contribuenteForm: FormGroup = this.fb.group({
     codiceFiscale: ['', [Validators.required, fiscalCodeValidator]],
     cognome: ['', [Validators.required]],
@@ -86,8 +74,7 @@ export class TaxpayerComponent implements OnDestroy, ControlValueAccessor {
   public today = new Date();
   private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder) {
-  }
+  constructor(private fb: FormBuilder) { }
 
   public ngOnDestroy(): void {
     this.destroy$.next();
@@ -112,4 +99,9 @@ export class TaxpayerComponent implements OnDestroy, ControlValueAccessor {
       .pipe(takeUntil(this.destroy$))
       .subscribe((() => fn()));
   }
+
+  /* public validate(control: AbstractControl): ValidationErrors | null {
+     console.log(control);
+    return null;
+   }*/
 }

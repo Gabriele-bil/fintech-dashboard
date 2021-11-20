@@ -97,8 +97,7 @@ export class TaxesComponent implements OnInit {
     private snackBarService: SnackBarService,
     private dialogService: DialogService,
     private cardService: CardsService,
-  ) {
-  }
+  ) { }
 
   public get erario(): FormArray {
     return this.taxesForm.get('erario') as FormArray;
