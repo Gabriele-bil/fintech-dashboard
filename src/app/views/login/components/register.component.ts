@@ -85,7 +85,6 @@ import { equalFieldsValidator } from '../../../shared/validators/equal-fields.va
         </mat-error>
       </mat-form-field>
 
-      <!-- TODO ngIf Aggiungere validatore equalfields -->
       <mat-error *ngIf="registerForm.errors?.equalFields">
         {{ registerForm.errors?.equalFields }}
       </mat-error>
