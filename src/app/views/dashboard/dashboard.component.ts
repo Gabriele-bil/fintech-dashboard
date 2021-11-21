@@ -30,7 +30,7 @@ import { tap } from 'rxjs/operators';
   `],
 })
 export class DashboardComponent {
-  public user$ = this.userStore.user$.pipe(tap(console.log));
+  public user$ = this.userStore.user$;
 
   constructor(private authService: AuthService, private userStore: UserStore) {
   }

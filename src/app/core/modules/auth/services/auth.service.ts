@@ -29,8 +29,10 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.userStore.removeUser();
-    this.router.navigateByUrl('/login');
+    this.http.get<void>(`/logout`).subscribe(() => {
+      this.userStore.removeUser();
+      this.router.navigateByUrl('/login');
+    });
   }
 
   public fetchUser(forceReload = false): Observable<User> {

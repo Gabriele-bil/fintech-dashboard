@@ -3,6 +3,7 @@ import { RegisterErrorStateMatcher } from '../utility/register-error-state-match
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/modules/auth/services/auth.service';
 import { Router } from '@angular/router';
+import { equalFieldsValidator } from '../../../shared/validators/equal-fields.validator';
 
 @Component({
   selector: 'ft-register',
@@ -85,8 +86,8 @@ import { Router } from '@angular/router';
       </mat-form-field>
 
       <!-- TODO ngIf Aggiungere validatore equalfields -->
-      <mat-error>
-        Le due password non coincidono
+      <mat-error *ngIf="registerForm.errors?.equalFields">
+        {{ registerForm.errors?.equalFields }}
       </mat-error>
 
       <button
@@ -111,7 +112,7 @@ export class RegisterComponent {
     surname: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required, Validators.minLength(6)]],
-  });
+  }, { validators: [equalFieldsValidator('password', 'confirmPassword')] });
 
   constructor(
     private fb: FormBuilder,
