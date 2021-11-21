@@ -9,6 +9,7 @@ export class ApiInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const options = {
       url: `${ environment.apiUrl }${ request.url }`,
+      withCredentials: true
     };
     if (!request.url.includes('http')) {
       request = request.clone(options);

@@ -154,7 +154,6 @@ export class TaxesComponent implements OnInit {
     if (this.taxesForm.valid && this.erario.controls.length && this.inps.controls.length) {
       const dialogRef = this.dialogService.openCustomDialog(SelectCardDialogComponent, [...this.cards]);
       dialogRef.afterClosed().pipe(
-        tap(result => console.log(result)),
         switchMap((result: Card) =>
           (result)
           ? this.taxesService.addTaxes(this.taxesForm.value)

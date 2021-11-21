@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { RegisterErrorStateMatcher } from '../utility/register-error-state-matcher';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { AuthService } from '../../../core/modules/auth/services/auth.service';
+import { Router } from '@angular/router';
+import { equalFieldsValidator } from '../../../shared/validators/equal-fields.validator';
 
 @Component({
   selector: 'ft-register',
@@ -82,9 +85,8 @@ import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
         </mat-error>
       </mat-form-field>
 
-      <!-- TODO ngIf Aggiungere validatore equalfields -->
-      <mat-error>
-        Le due password non coincidono
+      <mat-error *ngIf="registerForm.errors?.equalFields">
+        {{ registerForm.errors?.equalFields }}
       </mat-error>
 
       <button
@@ -109,9 +111,13 @@ export class RegisterComponent {
     surname: ['', [Validators.required]],
     password: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', [Validators.required, Validators.minLength(6)]],
-  });
+  }, { validators: [equalFieldsValidator('password', 'confirmPassword')] });
 
-  constructor(private fb: FormBuilder) { }
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   public get email(): AbstractControl {
     return this.registerForm.get('email')!;
@@ -135,7 +141,12 @@ export class RegisterComponent {
 
   public createUser() {
     if (this.registerForm.valid) {
-      console.log(this.registerForm.value);
+      this.authService.register({
+        email: this.email.value,
+        password: this.password.value,
+        name: this.name.value,
+        surname: this.surname.value
+      }).subscribe(() => this.router.navigateByUrl('/dashboard'));
     }
   }
 
