@@ -5,6 +5,7 @@ import { SnackBarService } from '../../shared/services/snack-bar.service';
 import { Observable } from 'rxjs';
 import { CardsService } from '../../api/cards.service';
 import { MatDrawer } from '@angular/material/sidenav';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'ft-cards',
@@ -39,7 +40,11 @@ export class CardsComponent implements OnInit {
   public cards: Card[] = [];
   public cards$: Observable<Card[]> | null = null;
 
-  constructor(private snackBarService: SnackBarService, private cardsService: CardsService) { }
+  constructor(
+    private snackBarService: SnackBarService,
+    private cardsService: CardsService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.getCards();
@@ -59,8 +64,7 @@ export class CardsComponent implements OnInit {
   }
 
   public goToCardMovements(cardId: string): void {
-    // TODO andare alla lista dei movimenti
-    console.log(cardId);
+    this.router.navigateByUrl(`dashboard/movements/${cardId}`)
   }
 
   private getCards(): void {

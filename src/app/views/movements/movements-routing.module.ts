@@ -3,7 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { MovementsComponent } from './movements.component';
 
 const routes: Routes = [
-  { path: '', component: MovementsComponent }
+  { path: '', component: MovementsComponent },
+  { path: ':cardId', component: MovementsComponent },
 ];
 
 @NgModule({
