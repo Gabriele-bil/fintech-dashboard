@@ -80,7 +80,7 @@ import { ibanValidator } from '../../shared/validators/iban.validators';
   `,
 })
 export class TransferComponent implements OnInit, OnDestroy {
-  public cards$: Observable<Card[]> | null = null;
+  public cards$: Observable<Card[]> = this.cardService.getAll();
   public contacts: Contact[] = [];
   public transferForm = this.fb.group({
     name: ['', Validators.required],
@@ -104,7 +104,6 @@ export class TransferComponent implements OnInit, OnDestroy {
   ) { }
 
   public ngOnInit(): void {
-    this.cards$ = this.cardService.getAll();
     this.getContacts();
   }
 

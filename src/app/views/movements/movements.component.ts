@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Card } from '../../models/card.model';
 import { PaginatedMovements } from '../../models/movement.model';
-import { FormControl } from '@angular/forms';
 import { CardsService } from '../../api/cards.service';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import { filter, map, scan, switchMap, takeUntil } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
+
+type PaginetedMovementsWithCardId = PaginatedMovements & { selectedCardId: string | null };
 
 @Component({
   selector: 'ft-movements',
@@ -10,78 +14,89 @@ import { CardsService } from '../../api/cards.service';
     <mat-card>
       <mat-form-field appearance="fill">
         <mat-label>Seleziona una carta</mat-label>
-        <mat-select [formControl]="cardInput" (ngModelChange)="selectCard()">
-          <mat-option *ngFor="let card of cards" [value]="card._id">
+        <mat-select [value]="selectedCardId$ | async" (valueChange)="onCardChange($event)">
+          <mat-option *ngFor="let card of cards$ | async" [value]="card._id">
             {{ card.number }}
           </mat-option>
         </mat-select>
       </mat-form-field>
 
-      <h2>Saldo: {{ balance | currency: 'EUR' }}</h2>
+      <h2>Saldo: {{ balance$ | async | currency: 'EUR' }}</h2>
 
-      <ng-container *ngIf="movements && movements.data.length; else noMovement">
-        <ft-movement
-          *ngFor="let movement of movements.data"
-          [movementTimeStamp]="movement.timestamp"
-          [movementType]="movement.type"
-          [movementAmount]="movement.amount"
-          [movementTitle]="movement.title"
-          [movementDescription]="movement.description"
-        >
-        </ft-movement>
+      <ng-container *ngIf="movements$ | async as movements">
+        <ng-container *ngIf="movements && movements.data.length; else noMovement">
+          <ft-movement
+            *ngFor="let movement of movements.data"
+            [movementTimeStamp]="movement.timestamp"
+            [movementType]="movement.type"
+            [movementAmount]="movement.amount"
+            [movementTitle]="movement.title"
+            [movementDescription]="movement.description"
+          >
+          </ft-movement>
 
-        <button
-          *ngIf="movements.data.length < movements.total" mat-button class="w-100"
-          (click)="loadMovements()"
-        >
-          Carica altro
-        </button>
+          <button
+            *ngIf="movements.data.length < movements.total" mat-button class="w-100"
+            (click)="page$.next(this.page$.value + 1)"
+          >
+            Carica altro
+          </button>
+        </ng-container>
+
+        <ng-template #noMovement>
+          <p>Non sono ancora presenti movimenti per questa carta</p>
+        </ng-template>
       </ng-container>
-
-      <ng-template #noMovement>
-        <p>Non sono ancora presenti movimenti per questa carta</p>
-      </ng-template>
     </mat-card>
   `,
   styles: [],
 })
-export class MovementsComponent implements OnInit {
-  public cards: Card[] = [];
-  public movements: PaginatedMovements | null = null;
-  public balance = 0;
-  public cardInput = new FormControl('');
-  private page = 0;
+export class MovementsComponent implements OnInit, OnDestroy {
+  public cards$ = new BehaviorSubject<Card[]>([]);
+  public selectedCardId$ = this.activatedRoute.params.pipe(
+    map(({ cardId }) => cardId)
+  );
+  public selectedCard$ = combineLatest([this.cards$, this.selectedCardId$]).pipe(
+    map(([cards, selectedCardId]) => cards.find(c => c._id === selectedCardId))
+  );
+  public page$ = new BehaviorSubject<number>(0);
 
-  constructor(private cardsService: CardsService) { }
+  public movements$: Observable<PaginatedMovements> = combineLatest([this.selectedCardId$, this.page$]).pipe(
+    filter(([selectedCardId, page]) => !!selectedCardId),
+    switchMap(([selectedCardId, page]) => this.cardsService.getCardMovements(selectedCardId, 5, page * 5).pipe(
+      map(paginatedMovements => ({ ...paginatedMovements, selectedCardId }))
+    )),
+    scan((acc, curr) => {
+      if (acc.selectedCardId !== curr.selectedCardId) {
+        return curr;
+      }
+      return { data: [...acc.data, ...curr.data], total: curr.total, selectedCardId: curr.selectedCardId }
+    }, { data: [], total: 0, selectedCardId: null } as PaginetedMovementsWithCardId),
+    map(({ data, total }) => ({ data, total }))
+  );
 
-  ngOnInit(): void {
-    this.cardsService.getAll().subscribe(cards => this.cards = cards);
+  public balance$ = this.selectedCard$.pipe(
+    map(selectedCard => selectedCard?.amount || 0)
+  );
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private cardsService: CardsService,
+    private activatedRoute: ActivatedRoute,
+    private router: Router
+  ) { }
+
+  public ngOnInit(): void {
+    this.cardsService.getAll().pipe(takeUntil(this.destroy$))
+      .subscribe(cards => this.cards$.next(cards));
   }
 
-  public selectCard(): void {
-    this.page = 0;
-    this.movements = null;
-    this.getMovements();
-    this.setBalance();
+  public onCardChange(cardId: string): void {
+    this.page$.next(0);
+    this.router.navigateByUrl(`dashboard/movements/${cardId}`);
   }
 
-  public loadMovements(): void {
-    this.page++;
-    this.getMovements();
-  }
-
-  private setBalance(): void {
-    const card = this.cards.find(c => c._id === this.cardInput.value);
-    if (card) {
-      this.balance = card.amount;
-    }
-  }
-
-  private getMovements(): void {
-    this.cardsService.getCardMovements(this.cardInput.value, 5, this.page * 5).subscribe(movements => {
-      this.movements?.data
-      ? this.movements = { ...this.movements, data: [...this.movements?.data, ...movements.data] }
-      : this.movements = movements;
-    });
+  public ngOnDestroy(): void {
+    this.destroy$.next();
   }
 }
