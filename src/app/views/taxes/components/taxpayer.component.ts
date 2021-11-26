@@ -1,9 +1,18 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  FormBuilder,
+  FormGroup, NG_VALIDATORS,
+  NG_VALUE_ACCESSOR, ValidationErrors, Validator,
+  Validators
+} from '@angular/forms';
 import { Comune } from '../../../models/comuni.model';
 import { debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import { fiscalCodeValidator } from '../../../shared/validators/fiscal-code.validator';
+import { ProvinciaValidators } from "../../../shared/validators/provincia.validators";
+import { CustomErrorStateMatcher } from "../../../shared/helpers/custom-error-state-matcher";
 
 @Component({
   selector: 'ft-taxpayer',
@@ -52,11 +61,14 @@ import { fiscalCodeValidator } from '../../../shared/validators/fiscal-code.vali
             </mat-option>
           </ng-container>
         </mat-autocomplete>
+        <mat-error *ngIf="provinciaDiNascita.errors">
+          La provincia inserita è errata
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="fill" class="w-100 mb-3">
         <mat-label>Comune di nascita</mat-label>
-        <input matInput formControlName="comuneDiNascita" [matAutocomplete]="com">
+        <input matInput formControlName="comuneDiNascita" [matAutocomplete]="com" [errorStateMatcher]="comuneErrorStateMatcher">
         <mat-autocomplete #com="matAutocomplete">
           <ng-container *ngIf="filteredComuni$ | async as filteredComuni">
             <mat-option *ngFor="let option of filteredComuni" [value]="option">
@@ -64,9 +76,20 @@ import { fiscalCodeValidator } from '../../../shared/validators/fiscal-code.vali
             </mat-option>
           </ng-container>
         </mat-autocomplete>
+        <div class="position-absolute custom-error">
+          <div class="mat-error" *ngIf="contribuenteForm.hasError('comuni')">
+            {{ contribuenteForm.getError('comuni')  }}
+          </div>
+        </div>
       </mat-form-field>
     </form>
   `,
+  styles: [`
+    .position-absolute.custom-error {
+      top: 2rem;
+      font-size: 75%;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
@@ -74,31 +97,37 @@ import { fiscalCodeValidator } from '../../../shared/validators/fiscal-code.vali
       useExisting: TaxpayerComponent,
       multi: true,
     },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: TaxpayerComponent,
+      multi: true
+    }
   ],
 })
-export class TaxpayerComponent implements OnInit, OnDestroy, ControlValueAccessor {
+export class TaxpayerComponent implements OnInit, OnDestroy, ControlValueAccessor, Validator {
   @Input() comuni: Comune[] | null = [];
-  // TODO aggiungere validator
   public contribuenteForm: FormGroup = this.fb.group({
     codiceFiscale: ['', [Validators.required, fiscalCodeValidator]],
     cognome: ['', [Validators.required]],
     nome: ['', [Validators.required]],
     dataDiNascita: ['', [Validators.required]],
     sesso: ['', [Validators.required]],
-    provinciaDiNascita: ['', [Validators.required]],
+    provinciaDiNascita: ['', [Validators.required], [this.provinciaValidators.provinceValidators()]],
     comuneDiNascita: ['', [Validators.required]],
-  });
+  }, { asyncValidators: this.provinciaValidators.comuniValidators()});
   public today = new Date();
   public filteredProvince$!: Observable<string[]> | undefined;
   public filteredComuni$!: Observable<string[]> | undefined;
+  public comuneErrorStateMatcher = new CustomErrorStateMatcher('comuneDiNascita');
   private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder) {
-  }
+  constructor(
+    private fb: FormBuilder,
+    private provinciaValidators: ProvinciaValidators
+  ) { }
 
   public ngOnInit(): void {
-    // TODO Da rivedere, usando combine latest, creare una pipe (?)
-    this.filteredProvince$ = this.contribuenteForm.get('provinciaDiNascita')?.valueChanges.pipe(
+    this.filteredProvince$ = this.provinciaDiNascita.valueChanges.pipe(
       distinctUntilChanged(),
       debounceTime(500),
       map(val => {
@@ -124,6 +153,10 @@ export class TaxpayerComponent implements OnInit, OnDestroy, ControlValueAccesso
     this.destroy$.next();
   }
 
+  public get provinciaDiNascita(): AbstractControl {
+    return this.contribuenteForm.get('provinciaDiNascita')!;
+  }
+
   public writeValue(obj: any): void {
     this.contribuenteForm.patchValue(obj);
   }
@@ -144,8 +177,7 @@ export class TaxpayerComponent implements OnInit, OnDestroy, ControlValueAccesso
       .subscribe((() => fn()));
   }
 
-  /* public validate(control: AbstractControl): ValidationErrors | null {
-     console.log(control);
-    return null;
-   }*/
+   public validate(control: AbstractControl): ValidationErrors | null {
+    return (!this.contribuenteForm.valid) ? { invalid: true } : null;
+   }
 }

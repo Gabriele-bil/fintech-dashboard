@@ -6,8 +6,7 @@ import { Card } from '../../models/card.model';
 
 @Injectable()
 export class TransferValidators {
-  constructor(private cardsService: CardsService) {
-  }
+  constructor(private cardsService: CardsService) { }
 
   public transferValidator(): AsyncValidatorFn {
     return (control => this.cardsService.getAll().pipe(
@@ -24,5 +23,3 @@ export class TransferValidators {
     ));
   }
 }
-
-// TODO DIRECTIVE ASYNC VALIDATOR
