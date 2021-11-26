@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { INPSErrorStateMatcher } from '../utility/inps-error-state-matcher';
+import { CustomErrorStateMatcher } from '../../../shared/helpers/custom-error-state-matcher';
 import { TotalsInput } from '../../../models/totals-input.model';
 
 @Component({
@@ -96,7 +96,7 @@ export class InpsComponent {
   @Input() taxesForm!: FormGroup;
   @Input() inpsForm!: FormArray;
   @Input() totaliInps: TotalsInput | null = null;
-  @Input() inpsMatcher: INPSErrorStateMatcher = new INPSErrorStateMatcher();
+  @Input() inpsMatcher: CustomErrorStateMatcher = new CustomErrorStateMatcher('inps');
   @Output() addInpsGroup = new EventEmitter<void>();
   @Output() removeInpsGroup = new EventEmitter<number>();
 }

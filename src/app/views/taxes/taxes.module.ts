@@ -9,6 +9,7 @@ import { TreasuryComponent } from './components/treasury.component';
 import { InpsComponent } from './components/inps.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SelectCardDialogComponent } from './components/select-card-dialog.component';
+import { ValidatorsModule } from "../../shared/modules/validators.module";
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { SelectCardDialogComponent } from './components/select-card-dialog.compo
     CommonModule,
     TaxesRoutingModule,
     ReactiveFormsModule,
-    SharedModule
-  ]
+    SharedModule,
+    ValidatorsModule
+  ],
 })
 export class TaxesModule { }

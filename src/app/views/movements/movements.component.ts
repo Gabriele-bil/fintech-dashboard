@@ -36,7 +36,7 @@ type PaginetedMovementsWithCardId = PaginatedMovements & { selectedCardId: strin
           </ft-movement>
 
           <button
-            *ngIf="movements.data.length < movements.total" mat-button class="w-100"
+            *ngIf="shouldLoadMore$ | async" mat-button class="w-100"
             (click)="page$.next(this.page$.value + 1)"
           >
             Carica altro
@@ -60,7 +60,6 @@ export class MovementsComponent implements OnInit, OnDestroy {
     map(([cards, selectedCardId]) => cards.find(c => c._id === selectedCardId))
   );
   public page$ = new BehaviorSubject<number>(0);
-
   public movements$: Observable<PaginatedMovements> = combineLatest([this.selectedCardId$, this.page$]).pipe(
     filter(([selectedCardId, page]) => !!selectedCardId),
     switchMap(([selectedCardId, page]) => this.cardsService.getCardMovements(selectedCardId, 5, page * 5).pipe(
@@ -74,9 +73,11 @@ export class MovementsComponent implements OnInit, OnDestroy {
     }, { data: [], total: 0, selectedCardId: null } as PaginetedMovementsWithCardId),
     map(({ data, total }) => ({ data, total }))
   );
-
   public balance$ = this.selectedCard$.pipe(
     map(selectedCard => selectedCard?.amount || 0)
+  );
+  public shouldLoadMore$ = this.movements$.pipe(
+    map(paginatedMovements => paginatedMovements.data.length < paginatedMovements.total)
   );
   private destroy$ = new Subject<void>();
 

@@ -12,7 +12,7 @@ import { ContactsService } from '../../api/contacts.service';
 import { TransferService } from '../../api/transfer.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { amountValidator } from '../../shared/validators/amount.validator';
-import { TransferValidators } from '../../shared/validators/transfer.validator';
+import { TransferValidators } from '../../shared/validators/transfer.validators';
 import { ibanValidator } from '../../shared/validators/iban.validators';
 
 @Component({
@@ -147,7 +147,9 @@ export class TransferComponent implements OnInit, OnDestroy {
   }
 
   private getContacts(dialogRef?: MatDialogRef<ContactsComponent>): void {
-    this.contactService.getAll().subscribe(contacts => {
+    this.contactService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(contacts => {
       this.contacts = contacts;
       dialogRef && this.refreshDialog(dialogRef);
     });

@@ -1,11 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Card } from '../../models/card.model';
 import { CardForm } from '../../models/card-form.model';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { CardsService } from '../../api/cards.service';
 import { MatDrawer } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
+import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: 'ft-cards',
@@ -35,10 +36,10 @@ import { Router } from '@angular/router';
     }
   `],
 })
-export class CardsComponent implements OnInit {
+export class CardsComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatDrawer;
-  public cards: Card[] = [];
-  public cards$: Observable<Card[]> | null = null;
+  public cards$ = new BehaviorSubject<Card[]>([]);
+  private destroy$ = new Subject<void>();
 
   constructor(
     private snackBarService: SnackBarService,
@@ -46,13 +47,19 @@ export class CardsComponent implements OnInit {
     private router: Router
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.getCards();
   }
 
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+  }
+
   public removeCard(cardId: string): void {
-    this.cards = this.cards.filter(card => card._id !== cardId);
-    this.snackBarService.openDefaultSnackBar('La carta è stata rimossa correttamente');
+    this.cardsService.deleteCard(cardId).subscribe(() => {
+      this.getCards();
+      this.snackBarService.openDefaultSnackBar('La carta è stata rimossa correttamente');
+    });
   }
 
   public saveCard(newCard: CardForm): void {
@@ -68,6 +75,8 @@ export class CardsComponent implements OnInit {
   }
 
   private getCards(): void {
-    this.cards$ = this.cardsService.getAll();
+    this.cardsService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cards => this.cards$.next(cards));
   }
 }

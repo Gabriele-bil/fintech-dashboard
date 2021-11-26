@@ -21,9 +21,11 @@ export class ApiInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError(err => {
         if (err instanceof HttpErrorResponse) {
-          err.error.error
-            ? this.snackBarService.openDefaultSnackBar(err.error.error)
-            : this.snackBarService.openDefaultSnackBar(err.message);
+          try {
+            this.snackBarService.openDefaultSnackBar(err.error.error);
+          } catch (e) {
+            this.snackBarService.openDefaultSnackBar("Ops qualcosa è andato storto")
+          }
         }
         return throwError(err);
       })

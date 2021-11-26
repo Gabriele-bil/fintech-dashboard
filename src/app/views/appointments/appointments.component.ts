@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Location } from '../../models/location.model';
 import { DayWithSlots } from '../../models/day-with-slots.model';
 import { DialogService } from '../../shared/services/dialog.service';
@@ -6,7 +6,8 @@ import { DayWithSlot } from '../../models/day-with-slot';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
 import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { AppointmentsService } from '../../api/appointments.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { takeUntil } from "rxjs/operators";
 
 @Component({
   selector: 'ft-appointments',
@@ -20,7 +21,7 @@ import { Observable } from 'rxjs';
 
       <mat-drawer #drawer mode="side" position="end">
         <ft-appointments-select-date
-          *ngIf="selectedLocation"
+          *ngIf="selectedLocation$ | async as selectedLocation"
           [location]="selectedLocation"
           [slotsDay]="slots"
           (selectedDayWithSlot)="openConfirmDialog($event)"
@@ -35,12 +36,14 @@ import { Observable } from 'rxjs';
     }
   `],
 })
-export class AppointmentsComponent implements OnInit {
+export class AppointmentsComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatSidenav;
 
-  public locations$: Observable<Location[]> | null = null;
+  public locations$ = new BehaviorSubject<Location[]>([]);
+  public selectedLocation$ = new BehaviorSubject<Location | null>(null);
   public slots: DayWithSlots[] = [];
-  public selectedLocation: Location | null = null;
+
+  private destroy$ = new Subject<void>()
 
   constructor(
     private dialogService: DialogService,
@@ -50,6 +53,10 @@ export class AppointmentsComponent implements OnInit {
 
   public ngOnInit(): void {
     this.getLocation();
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
   }
 
   public openConfirmDialog(dayWithSlot: DayWithSlot): void {
@@ -62,26 +69,32 @@ export class AppointmentsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.appointmentsService.scheduleAppointment(dayWithSlot).subscribe((res) => {
-          if (res) {
-            this.snackBarService.openDefaultSnackBar('Appuntamento confermato');
-            this.drawer.close();
-            this.getLocation();
-          }
+        this.appointmentsService.scheduleAppointment(dayWithSlot)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((res) => {
+            if (res) {
+              this.snackBarService.openDefaultSnackBar('Appuntamento confermato');
+              this.drawer.close();
+              this.getLocation();
+            }
         })
       }
     });
   }
 
   public selectLocation(location: Location, drawer: MatDrawer): void {
-    this.appointmentsService.getSlotsByLocationId(location._id).subscribe(slots => {
-      this.slots = slots;
-      drawer.open();
-      this.selectedLocation = location;
-    });
+    this.appointmentsService.getSlotsByLocationId(location._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(slots => {
+        this.slots = slots;
+        drawer.open();
+        this.selectedLocation$.next(location);
+      });
   }
 
   private getLocation(): void {
-    this.locations$ = this.appointmentsService.getAllLocations();
+    this.appointmentsService.getAllLocations()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(locations => this.locations$.next(locations));
   }
 }

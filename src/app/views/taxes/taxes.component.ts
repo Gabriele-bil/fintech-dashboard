@@ -3,10 +3,10 @@ import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { inpsValidators } from '../../shared/validators/inpsValidators';
 import { TaxesService } from '../../api/taxes.service';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
-import { INPSErrorStateMatcher } from './utility/inps-error-state-matcher';
+import { CustomErrorStateMatcher } from '../../shared/helpers/custom-error-state-matcher';
 import { DialogService } from '../../shared/services/dialog.service';
 import { SelectCardDialogComponent } from './components/select-card-dialog.component';
-import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, map, switchMap } from 'rxjs/operators';
 import { Card } from '../../models/card.model';
 import { combineLatest, Observable, of } from 'rxjs';
 import { CardsService } from '../../api/cards.service';
@@ -58,21 +58,11 @@ import { Comune } from '../../models/comuni.model';
 })
 export class TaxesComponent implements OnInit {
   public taxesForm = this.fb.group({
-    /*contribuente: this.fb.group({
-      codiceFiscale: ['', [Validators.required, fiscalCodeValidator]],
-      cognome: ['', [Validators.required]],
-      nome: ['', [Validators.required]],
-      dataDiNascita: ['', [Validators.required]],
-      sesso: ['', [Validators.required]],
-      provinciaDiNascita: ['', [Validators.required]],
-      comuneDiNascita: ['', [Validators.required]],
-    }),
-    }),*/
     contribuente: [],
     erario: this.fb.array([]),
     inps: this.fb.array([]),
   });
-  public inpsMatcher = new INPSErrorStateMatcher();
+  public inpsMatcher = new CustomErrorStateMatcher('inps');
   public totaliErario$: Observable<TotalsInput> = this.erario.valueChanges.pipe(
     debounceTime(1000),
     map((values: TotalsInput[]) => (
@@ -104,8 +94,7 @@ export class TaxesComponent implements OnInit {
     private dialogService: DialogService,
     private cardService: CardsService,
     private comuniService: ComuniService,
-  ) {
-  }
+  ) { }
 
   public get erario(): FormArray {
     return this.taxesForm.get('erario') as FormArray;
