@@ -20,7 +20,7 @@ export class ApiInterceptor implements HttpInterceptor {
     }
     return next.handle(request).pipe(
       catchError(err => {
-        if (err instanceof HttpErrorResponse) {
+        if (err instanceof HttpErrorResponse && err.status !== 401) {
           try {
             this.snackBarService.openDefaultSnackBar(err.error.error);
           } catch (e) {
