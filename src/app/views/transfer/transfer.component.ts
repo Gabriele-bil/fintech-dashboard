@@ -8,12 +8,12 @@ import { Contact } from '../../models/contact.model';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Observable, Subject } from 'rxjs';
 import { CardsService } from '../../api/cards.service';
-import { ContactsService } from '../../api/contacts.service';
 import { TransferService } from '../../api/transfer.service';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { amountValidator } from '../../shared/validators/amount.validator';
 import { TransferValidators } from '../../shared/validators/transfer.validators';
 import { ibanValidator } from '../../shared/validators/iban.validators';
+import { ContactsFacade } from "./store/contact/contacts.facade";
 
 @Component({
   selector: 'ft-transfer',
@@ -81,7 +81,6 @@ import { ibanValidator } from '../../shared/validators/iban.validators';
 })
 export class TransferComponent implements OnInit, OnDestroy {
   public cards$: Observable<Card[]> = this.cardService.getAll();
-  public contacts: Contact[] = [];
   public transferForm = this.fb.group({
     name: ['', Validators.required],
     surname: ['', Validators.required],
@@ -91,6 +90,8 @@ export class TransferComponent implements OnInit, OnDestroy {
       card: ['', Validators.required, [this.transferValidators.cardIdValidator()]],
     }, { asyncValidators: this.transferValidators.transferValidator() })
   });
+
+  private contacts$: Observable<Contact[]> = this.contactsFacade.contacts$;
   private destroy$ = new Subject();
 
   constructor(
@@ -98,22 +99,23 @@ export class TransferComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private snackBarService: SnackBarService,
     private cardService: CardsService,
-    private contactService: ContactsService,
     private transferService: TransferService,
-    private transferValidators: TransferValidators
-  ) { }
+    private transferValidators: TransferValidators,
+    private contactsFacade: ContactsFacade
+  ) {
+  }
+
+  public get moneyGroup(): FormGroup {
+    return this.transferForm.get('money') as FormGroup;
+  }
 
   public ngOnInit(): void {
-    this.getContacts();
+    this.contactsFacade.setContacts();
   }
 
   public ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  public get moneyGroup(): FormGroup {
-    return this.transferForm.get('money') as FormGroup;
   }
 
   public transferMoney(): void {
@@ -138,58 +140,26 @@ export class TransferComponent implements OnInit, OnDestroy {
 
   public openContact(): void {
     const dialogRef: MatDialogRef<ContactsComponent> = this.dialogService.openCustomDialog(ContactsComponent);
-    dialogRef.componentInstance.contacts = this.contacts;
+    dialogRef.componentInstance.contacts$ = this.contacts$;
 
-    this.deleteContact(dialogRef);
-    this.editContact(dialogRef);
-    this.addContact(dialogRef);
-    this.selectContact(dialogRef);
-  }
+    dialogRef.componentInstance.editContact.pipe(takeUntil(this.destroy$))
+      .subscribe(contact => this.contactsFacade.updateContact(contact));
 
-  private getContacts(dialogRef?: MatDialogRef<ContactsComponent>): void {
-    this.contactService.getAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(contacts => {
-      this.contacts = contacts;
-      dialogRef && this.refreshDialog(dialogRef);
-    });
-  }
+    dialogRef.componentInstance.deleteContact.pipe(takeUntil(this.destroy$))
+      .subscribe(contactId => this.contactsFacade.deleteContact(contactId));
 
-  private editContact(dialogRef: MatDialogRef<ContactsComponent>): void {
-    dialogRef.componentInstance.editContact.pipe(
-      switchMap(contact => this.contactService.updateContact(contact)),
-      takeUntil(this.destroy$),
-    ).subscribe(() => this.getContacts(dialogRef));
-  }
+    dialogRef.componentInstance.addContact.pipe(takeUntil(this.destroy$))
+      .subscribe(contact => this.contactsFacade.addContact(contact));
 
-  private deleteContact(dialogRef: MatDialogRef<ContactsComponent>): void {
-    dialogRef.componentInstance.deleteContact.pipe(
-      switchMap(contactId => this.contactService.deleteContact(contactId)),
-      takeUntil(this.destroy$),
-    ).subscribe(() => this.getContacts(dialogRef));
-  }
-
-  private addContact(dialogRef: MatDialogRef<ContactsComponent>): void {
-    dialogRef.componentInstance.addContact.pipe(
-      switchMap(contact => this.contactService.addContact(contact)),
-      takeUntil(this.destroy$),
-    ).subscribe(() => this.getContacts(dialogRef))
-  }
-
-  private selectContact(dialogRef: MatDialogRef<ContactsComponent>): void {
-    dialogRef.afterClosed().pipe(
-      takeUntil(this.destroy$),
-    ).subscribe((selectedContactId: string) => {
-      if (selectedContactId) {
-        const selectedContact = this.contacts.find(c => c._id === selectedContactId);
-        selectedContact && this.transferForm.patchValue(selectedContact);
-      }
-    });
-  }
-
-  private refreshDialog(dialogRef: MatDialogRef<ContactsComponent>): void {
-    dialogRef.componentInstance.contacts = this.contacts;
-    dialogRef.componentInstance.showList = true;
-    dialogRef.componentInstance.refreshTemplate();
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$))
+      .subscribe((selectedContactId: string) => {
+        if (selectedContactId) {
+          this.contacts$.pipe(takeUntil(this.destroy$))
+            .subscribe(contacts => {
+              const selectedContact = contacts.find(c => c._id === selectedContactId);
+              selectedContact && this.transferForm.patchValue(selectedContact);
+            })
+        }
+      });
   }
 }

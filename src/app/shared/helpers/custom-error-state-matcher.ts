@@ -10,7 +10,6 @@ export class CustomErrorStateMatcher implements ErrorStateMatcher {
     const errors = control?.parent?.errors;
     const invalidParent = errors ? errors[this.controlKey] : null;
     const userActions = control?.dirty || control?.touched || form?.submitted;
-    console.log(control?.parent?.errors);
 
     return !!((invalidControl || invalidParent) && userActions);
   }
