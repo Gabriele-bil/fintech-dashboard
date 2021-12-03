@@ -1,18 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'ft-welcome',
   template: `
-    <h1>Ciao</h1>
+    <h1>Ciao, Benvenuto!</h1>
   `,
   styles: [
   ]
 })
-export class WelcomeComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
-}
+export class WelcomeComponent { }

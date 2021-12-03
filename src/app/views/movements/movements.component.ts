@@ -52,6 +52,7 @@ type PaginetedMovementsWithCardId = PaginatedMovements & { selectedCardId: strin
   styles: [],
 })
 export class MovementsComponent implements OnInit, OnDestroy {
+  // Su questo componente non voglio applicare ngrx, perché sono abbastanza soddisfatto dell'utilizzo di rxjs :D
   public cards$ = new BehaviorSubject<Card[]>([]);
   public selectedCardId$ = this.activatedRoute.params.pipe(
     map(({ cardId }) => cardId)

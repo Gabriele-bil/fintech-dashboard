@@ -66,7 +66,6 @@ import { CardForm } from '../../../models/card-form.model';
       </form>
     </div>
   `,
-  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardFormComponent {

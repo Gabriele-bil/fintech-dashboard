@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Card } from '../../../models/card.model';
 
@@ -20,8 +20,7 @@ import { Card } from '../../../models/card.model';
       </button>
     </div>
   `,
-  styles: [
-  ]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectCardDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public cards: Card[]) { }

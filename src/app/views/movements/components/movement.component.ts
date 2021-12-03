@@ -24,7 +24,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       </mat-expansion-panel>
     </mat-accordion>
   `,
-  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MovementComponent {

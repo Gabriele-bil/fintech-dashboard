@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { User } from '../../../../models/user.model';
 
 @Component({
@@ -46,6 +46,7 @@ import { User } from '../../../../models/user.model';
       transition: all 0.2s ease-in-out;
     }
   `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NavComponent {
   @Input() user: User | null = null;

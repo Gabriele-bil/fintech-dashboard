@@ -22,7 +22,6 @@ import { Card } from '../../../models/card.model';
       <button mat-raised-button class="w-100 mt-3" (click)="addCard.emit()">Aggiungi</button>
     </div>
   `,
-  styles: [``],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardListComponent {

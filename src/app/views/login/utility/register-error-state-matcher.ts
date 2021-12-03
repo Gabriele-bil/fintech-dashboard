@@ -9,5 +9,4 @@ export class RegisterErrorStateMatcher implements ErrorStateMatcher {
 
     return !!((invalidControl || invalidParent) && userActions);
   }
-
 }

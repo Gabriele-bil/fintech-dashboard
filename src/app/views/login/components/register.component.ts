@@ -149,5 +149,4 @@ export class RegisterComponent {
       }).subscribe(() => this.router.navigateByUrl('/dashboard'));
     }
   }
-
 }

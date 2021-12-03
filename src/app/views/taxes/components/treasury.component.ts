@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { TotalsInput } from '../../../models/totals-input.model';
 
@@ -60,7 +60,7 @@ import { TotalsInput } from '../../../models/totals-input.model';
       </ng-container>
     </ng-container>
   `,
-  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TreasuryComponent {
   @Input() taxesForm!: FormGroup;

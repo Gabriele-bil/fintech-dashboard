@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { CustomErrorStateMatcher } from '../../../shared/helpers/custom-error-state-matcher';
 import { TotalsInput } from '../../../models/totals-input.model';
@@ -90,7 +90,7 @@ import { TotalsInput } from '../../../models/totals-input.model';
       </ng-container>
     </ng-container>
   `,
-  styles: [],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InpsComponent {
   @Input() taxesForm!: FormGroup;

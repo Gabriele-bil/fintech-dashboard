@@ -49,7 +49,6 @@ import { Contact } from '../../../models/contact.model';
       </ng-template>
     </mat-list>
   `,
-  styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactListComponent {
