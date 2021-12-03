@@ -13,6 +13,8 @@ import { CardsService } from '../../api/cards.service';
 import { TotalsInput } from '../../models/totals-input.model';
 import { ComuniService } from '../../api/comuni.service';
 import { Comune } from '../../models/comuni.model';
+import { UrlTree } from "@angular/router";
+import { CanComponentDeactivateGuard } from "../../shared/guards/can-component-deactivate.guard";
 
 @Component({
   selector: 'ft-taxes',
@@ -56,7 +58,7 @@ import { Comune } from '../../models/comuni.model';
     </form>
   `,
 })
-export class TaxesComponent implements OnInit {
+export class TaxesComponent implements OnInit, CanComponentDeactivateGuard {
   public taxesForm = this.fb.group({
     contribuente: [],
     erario: this.fb.array([]),
@@ -157,5 +159,11 @@ export class TaxesComponent implements OnInit {
         },
         () => this.snackBarService.openDefaultSnackBar(`C'è stato un errore, riprova`, 'chiudi'));
     }
+  }
+
+  public canDeactivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    return this.taxesForm.touched
+      ? this.dialogService.openCheckFormDialog()
+      : true;
   }
 }

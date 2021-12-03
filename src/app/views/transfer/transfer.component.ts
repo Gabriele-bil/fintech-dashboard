@@ -14,6 +14,8 @@ import { amountValidator } from '../../shared/validators/amount.validator';
 import { TransferValidators } from '../../shared/validators/transfer.validators';
 import { ibanValidator } from '../../shared/validators/iban.validators';
 import { ContactsFacade } from "./store/contact/contacts.facade";
+import { CanComponentDeactivateGuard } from "../../shared/guards/can-component-deactivate.guard";
+import { UrlTree } from "@angular/router";
 
 @Component({
   selector: 'ft-transfer',
@@ -79,7 +81,7 @@ import { ContactsFacade } from "./store/contact/contacts.facade";
     </mat-card>
   `,
 })
-export class TransferComponent implements OnInit, OnDestroy {
+export class TransferComponent implements OnInit, OnDestroy, CanComponentDeactivateGuard {
   public cards$: Observable<Card[]> = this.cardService.getAll();
   public transferForm = this.fb.group({
     name: ['', Validators.required],
@@ -102,8 +104,7 @@ export class TransferComponent implements OnInit, OnDestroy {
     private transferService: TransferService,
     private transferValidators: TransferValidators,
     private contactsFacade: ContactsFacade
-  ) {
-  }
+  ) { }
 
   public get moneyGroup(): FormGroup {
     return this.transferForm.get('money') as FormGroup;
@@ -161,5 +162,11 @@ export class TransferComponent implements OnInit, OnDestroy {
             })
         }
       });
+  }
+
+  public canDeactivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    return this.transferForm.touched
+      ? this.dialogService.openCheckFormDialog()
+      : true;
   }
 }
