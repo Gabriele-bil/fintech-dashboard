@@ -1,12 +1,9 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Card } from '../../models/card.model';
 import { CardForm } from '../../models/card-form.model';
-import { SnackBarService } from '../../shared/services/snack-bar.service';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { CardsService } from '../../api/cards.service';
+import { Subject } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav';
-import { Router } from '@angular/router';
 import { takeUntil } from "rxjs/operators";
+import { CardsFacade } from "./store/cards.facade";
 
 @Component({
   selector: 'ft-cards',
@@ -26,7 +23,6 @@ import { takeUntil } from "rxjs/operators";
             (saveCard)="saveCard($event)"
           ></ft-card-form>
         </mat-drawer>
-
       </mat-drawer-container>
     </div>
   `,
@@ -38,17 +34,13 @@ import { takeUntil } from "rxjs/operators";
 })
 export class CardsComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatDrawer;
-  public cards$ = new BehaviorSubject<Card[]>([]);
   private destroy$ = new Subject<void>();
+  public cards$ = this.cardsFacade.cards$.pipe(takeUntil(this.destroy$));
 
-  constructor(
-    private snackBarService: SnackBarService,
-    private cardsService: CardsService,
-    private router: Router
-  ) { }
+  constructor(private cardsFacade: CardsFacade) { }
 
   public ngOnInit(): void {
-    this.getCards();
+    this.cardsFacade.setCards();
   }
 
   public ngOnDestroy(): void {
@@ -56,27 +48,14 @@ export class CardsComponent implements OnInit, OnDestroy {
   }
 
   public removeCard(cardId: string): void {
-    this.cardsService.deleteCard(cardId).subscribe(() => {
-      this.getCards();
-      this.snackBarService.openDefaultSnackBar('La carta è stata rimossa correttamente');
-    });
+    this.cardsFacade.removeCard(cardId);
   }
 
   public saveCard(newCard: CardForm): void {
-    this.cardsService.addCard(newCard).subscribe(() => {
-      this.getCards()
-      this.snackBarService.openDefaultSnackBar('La carta è stata aggiunta correttamente');
-      this.drawer.close();
-    });
+    this.cardsFacade.addCard(newCard);
   }
 
   public goToCardMovements(cardId: string): void {
-    this.router.navigateByUrl(`dashboard/movements/${cardId}`)
-  }
-
-  private getCards(): void {
-    this.cardsService.getAll()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(cards => this.cards$.next(cards));
+    this.cardsFacade.navigateToCardMovements(cardId);
   }
 }

@@ -1,18 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Contact } from '../../../models/contact.model';
+import { Observable } from "rxjs";
 
 @Component({
   selector: 'ft-contacts',
   template: `
-    <div id="container">
+    <div id="container" *ngIf="contacts$ | async as contacts">
       <ng-container *ngIf="showList; else contactForm">
         <ft-contact-list
           [contacts]="contacts"
@@ -48,7 +42,7 @@ import { Contact } from '../../../models/contact.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContactsComponent {
-  @Input() contacts: Contact[] = [];
+  @Input() contacts$: Observable<Contact[]> | null = null;
   @Input() showList = true;
 
   @Output() deleteContact = new EventEmitter<string>();
@@ -57,10 +51,8 @@ export class ContactsComponent {
 
   public selectedContact: Contact | null = null;
 
-  constructor(
-    public dialogRef: MatDialogRef<ContactsComponent>,
-    private changeDetection: ChangeDetectorRef,
-  ) { }
+  constructor(public dialogRef: MatDialogRef<ContactsComponent>) {
+  }
 
   public toggleShowList(): void {
     this.showList = !this.showList;
@@ -68,15 +60,11 @@ export class ContactsComponent {
 
   public saveContactHandler(contact: Omit<Contact, '_id'>): void {
     this.selectedContact
-    ? this.editContact.emit({ ...contact, _id: this.selectedContact._id })
-    : this.addContact.emit(contact);
+      ? this.editContact.emit({ ...contact, _id: this.selectedContact._id })
+      : this.addContact.emit(contact);
   }
 
   public selectContactHandler(contactId: string): void {
     this.dialogRef.close(contactId);
-  }
-
-  public refreshTemplate(): void {
-    this.changeDetection.detectChanges(); // TODO Da togliere
   }
 }

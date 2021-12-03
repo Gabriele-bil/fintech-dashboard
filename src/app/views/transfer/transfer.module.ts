@@ -9,6 +9,11 @@ import { FilterPipe } from './pipes/filter.pipe';
 import { ContactsComponent } from './components/contacts.component';
 import { SharedModule } from '../../shared/modules/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { StoreModule } from "@ngrx/store";
+import { contactsFeatureKey, contactsReducer } from "./store/contact/contacts.reducer";
+import { EffectsModule } from "@ngrx/effects";
+import { ContactsEffects } from "./store/contact/contacts.effects";
+import { ContactsFacade } from "./store/contact/contacts.facade";
 
 
 @NgModule({
@@ -23,7 +28,11 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     TransferRoutingModule,
     SharedModule,
-    ReactiveFormsModule
-  ]
+    ReactiveFormsModule,
+    StoreModule.forFeature(contactsFeatureKey, contactsReducer),
+    EffectsModule.forFeature([ContactsEffects])
+  ],
+  providers: [ContactsFacade]
 })
-export class TransferModule { }
+export class TransferModule {
+}
