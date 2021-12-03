@@ -8,8 +8,8 @@ import { DialogData } from '../../models/dialog-data.model';
     <h1 mat-dialog-title>{{ data.title }}</h1>
     <p mat-dialog-content class="p-0">{{ data.message }}</p>
 
-    <div mat-dialog-actions>
-      <button mat-button color="warn" [mat-dialog-close]>{{ data.rejectedCtaText }}</button>
+    <div mat-dialog-actions class="d-flex justify-content-between">
+      <button mat-button color="warn" [mat-dialog-close]="false">{{ data.rejectedCtaText }}</button>
       <button mat-button color="primary" [mat-dialog-close]="true">{{ data.confirmCtaText }}</button>
     </div>
 
