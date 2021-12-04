@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { CardForm } from '../../models/card-form.model';
 import { Subject } from 'rxjs';
 import { MatDrawer } from '@angular/material/sidenav';
@@ -32,14 +32,12 @@ import { CardsFacade } from "./store/cards.facade";
     }
   `],
 })
-export class CardsComponent implements OnInit, OnDestroy {
+export class CardsComponent implements OnDestroy {
   @ViewChild('drawer') drawer!: MatDrawer;
   private destroy$ = new Subject<void>();
   public cards$ = this.cardsFacade.cards$.pipe(takeUntil(this.destroy$));
 
-  constructor(private cardsFacade: CardsFacade) { }
-
-  public ngOnInit(): void {
+  constructor(private cardsFacade: CardsFacade) {
     this.cardsFacade.setCards();
   }
 

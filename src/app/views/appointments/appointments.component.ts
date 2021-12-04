@@ -8,6 +8,7 @@ import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { AppointmentsService } from '../../api/appointments.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from "rxjs/operators";
+import { CoreFacade } from "../../core/store/core.facade";
 
 @Component({
   selector: 'ft-appointments',
@@ -49,6 +50,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private snackBarService: SnackBarService,
     private appointmentsService: AppointmentsService,
+    private coreFacade: CoreFacade
   ) { }
 
   public ngOnInit(): void {
@@ -69,6 +71,7 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
+        this.coreFacade.setSpinner(true);
         this.appointmentsService.scheduleAppointment(dayWithSlot)
           .pipe(takeUntil(this.destroy$))
           .subscribe((res) => {
@@ -83,18 +86,24 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
   }
 
   public selectLocation(location: Location, drawer: MatDrawer): void {
+    this.coreFacade.setSpinner(true);
     this.appointmentsService.getSlotsByLocationId(location._id)
       .pipe(takeUntil(this.destroy$))
       .subscribe(slots => {
         this.slots = slots;
         drawer.open();
+        this.coreFacade.setSpinner(false);
         this.selectedLocation$.next(location);
       });
   }
 
   private getLocation(): void {
+    this.coreFacade.setSpinner(true);
     this.appointmentsService.getAllLocations()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(locations => this.locations$.next(locations));
+      .subscribe(locations => {
+        this.locations$.next(locations);
+        this.coreFacade.setSpinner(false);
+      });
   }
 }

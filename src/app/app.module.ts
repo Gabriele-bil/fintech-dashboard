@@ -11,6 +11,8 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
+import { coreReducer } from "./core/store/core.reducer";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [AppComponent],
@@ -25,9 +27,10 @@ import { EffectsModule } from '@ngrx/effects';
     }),
     CoreModule,
     MatSnackBarModule,
-    StoreModule.forRoot({}),
+    StoreModule.forRoot({ core: coreReducer }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
-    EffectsModule.forRoot([])
+    EffectsModule.forRoot([]),
+    MatProgressSpinnerModule
   ],
   bootstrap: [AppComponent],
 })

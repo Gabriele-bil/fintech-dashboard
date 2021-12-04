@@ -5,6 +5,7 @@ import { CardsService } from '../../api/cards.service';
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import { filter, map, scan, switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CoreFacade } from "../../core/store/core.facade";
 
 type PaginetedMovementsWithCardId = PaginatedMovements & { selectedCardId: string | null };
 
@@ -85,12 +86,17 @@ export class MovementsComponent implements OnInit, OnDestroy {
   constructor(
     private cardsService: CardsService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private coreFacade: CoreFacade
   ) { }
 
   public ngOnInit(): void {
+    this.coreFacade.setSpinner(true);
     this.cardsService.getAll().pipe(takeUntil(this.destroy$))
-      .subscribe(cards => this.cards$.next(cards));
+      .subscribe(cards => {
+        this.coreFacade.setSpinner(false);
+        this.cards$.next(cards);
+      });
   }
 
   public onCardChange(cardId: string): void {
