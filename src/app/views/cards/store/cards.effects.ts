@@ -5,6 +5,7 @@ import * as cardActions from "./cards.actions";
 import { map, switchMap, tap } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { SnackBarService } from "src/app/shared/services/snack-bar.service";
+import { setSpinner } from "../../../core/store/core.actions";
 
 @Injectable()
 export class CardsEffects {
@@ -13,6 +14,16 @@ export class CardsEffects {
     switchMap(() => this.cardsService.getAll().pipe(
       map(cards => cardActions.setCardsSuccess({ cards }))
     ))
+  ));
+
+  public setSpinner$ = createEffect(() => this.actions$.pipe(
+    ofType(cardActions.setCards),
+    map(() => setSpinner({ loading: true }))
+  ));
+
+  public disableSpinner$ = createEffect(() => this.actions$.pipe(
+    ofType(cardActions.setCardsSuccess),
+    map(() => setSpinner({ loading: false }))
   ));
 
   public removeCard$ = createEffect(() => this.actions$.pipe(
