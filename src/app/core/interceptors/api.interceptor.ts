@@ -19,7 +19,6 @@ export class ApiInterceptor implements HttpInterceptor {
       request = request.clone(options);
     }
     return next.handle(request).pipe(
-      delay(1500),
       catchError(err => {
         if (err instanceof HttpErrorResponse && err.status !== 401) {
           try {
