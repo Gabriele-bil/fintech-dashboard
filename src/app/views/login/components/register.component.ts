@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { RegisterErrorStateMatcher } from '../utility/register-error-state-matcher';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
-import { AuthService } from '../../../core/modules/auth/services/auth.service';
-import { Router } from '@angular/router';
 import { equalFieldsValidator } from '../../../shared/validators/equal-fields.validator';
+import { AuthFacade } from "../../../core/store/auth/auth.facade";
 
 @Component({
   selector: 'ft-register',
@@ -115,8 +114,7 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
+    private authFacade: AuthFacade
   ) { }
 
   public get email(): AbstractControl {
@@ -141,12 +139,8 @@ export class RegisterComponent {
 
   public createUser() {
     if (this.registerForm.valid) {
-      this.authService.register({
-        email: this.email.value,
-        password: this.password.value,
-        name: this.name.value,
-        surname: this.surname.value
-      }).subscribe(() => this.router.navigateByUrl('/dashboard'));
+      const { email, password, name, surname } = this.registerForm.value;
+      this.authFacade.signup({ email, password, name, surname });
     }
   }
 }

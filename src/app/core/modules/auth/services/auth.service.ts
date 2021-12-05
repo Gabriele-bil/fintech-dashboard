@@ -1,50 +1,48 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { UserStore } from './user-store';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Credentials } from 'src/app/models/credentials.model';
 import { User } from '../../../../models/user.model';
-import { catchError, mapTo, switchMap, take, tap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
-@Injectable(
-  { providedIn: 'root' },
-)
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
 
-  constructor(private http: HttpClient, private router: Router, private userStore: UserStore) {
+  constructor(private http: HttpClient) {
     this.http.get<void>('/csrf-token').subscribe();
   }
 
-  public register(credentials: Credentials): Observable<boolean> {
-    return this.http.post<boolean>('/register', credentials)
-  }
-
-  public login(email: string, password: string): Observable<boolean> {
-    return this.http.post<boolean>('/login', { email, password }).pipe(
-      switchMap(() => this.fetchUser()),
-      mapTo(true),
-      catchError(() => of(false)),
+  public register(credentials: Credentials): Observable<User> {
+    return this.http.post<boolean>('/register', credentials).pipe(
+      switchMap(() => this.login(credentials.email, credentials.password))
     );
   }
 
-  public logout(): void {
-    this.http.get<void>(`/logout`).subscribe(() => {
-      this.userStore.removeUser();
-      this.router.navigateByUrl('/login');
-    });
+  public login(email: string, password: string): Observable<User> {
+    return this.http.post<boolean>('/login', { email, password }).pipe(
+      switchMap(() => this.getCurrentUser())
+    );
   }
 
-  public fetchUser(forceReload = false): Observable<User> {
+  public logout(): Observable<void> {
+    return this.http.get<void>(`/logout`);
+  }
+
+  public getCurrentUser(): Observable<User> {
+    return this.http.get<User>('/me');
+  }
+
+  /*public fetchUser(forceReload = false): Observable<User> {
     return this.userStore.user$.pipe(
       take(1),
-      switchMap(user => {
-        return (!!user && !forceReload)
-               ? of(user)
-               : this.http.get<any>(`/me`, {}).pipe(
-            tap(u => this.userStore.setUser(u)),
-          );
-      }),
+      switchMap(user =>
+        (!!user && !forceReload)
+          ? of(user)
+          : this.http.get<any>(`/me`, {})
+      ),
     );
-  }
+
+  }*/
 }

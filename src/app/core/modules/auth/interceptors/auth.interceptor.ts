@@ -7,20 +7,18 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { UserStore } from '../services/user-store';
-import { Router } from '@angular/router';
+import { AuthFacade } from "../../../store/auth/auth.facade";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private userStore: UserStore, private router: Router) {}
+  constructor(private authFacade: AuthFacade) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       catchError(err => {
         if (err instanceof HttpErrorResponse && err.status === 401) {
-          this.userStore.removeUser();
-          this.router.navigateByUrl('/login')
+          this.authFacade.clearUser();
         }
         return throwError(err);
       })

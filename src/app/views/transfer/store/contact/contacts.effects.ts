@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { ContactsService } from "src/app/api/contacts.service";
 import * as contactActions from './contacts.actions';
 import { map, switchMap } from "rxjs/operators";
-import { setSpinner } from "src/app/core/store/core.actions";
+import { setSpinner } from "src/app/core/store/core/core.actions";
 
 @Injectable()
 export class ContactsEffects {
@@ -15,12 +15,22 @@ export class ContactsEffects {
   ));
 
   public setSpinner$ = createEffect(() => this.action$.pipe(
-    ofType(contactActions.setContacts, contactActions.updateContact, contactActions.deleteContact, contactActions.addContact),
+    ofType(
+      contactActions.setContacts,
+      contactActions.updateContact,
+      contactActions.deleteContact,
+      contactActions.addContact
+    ),
     map(() => setSpinner({ loading: true }))
   ));
 
   public disableSpinner$ = createEffect(() => this.action$.pipe(
-    ofType(contactActions.setContactsSuccess, contactActions.updateContactSuccess, contactActions.deleteContactSuccess, contactActions.addContactSuccess),
+    ofType(
+      contactActions.setContactsSuccess,
+      contactActions.updateContactSuccess,
+      contactActions.deleteContactSuccess,
+      contactActions.addContactSuccess
+    ),
     map(() => setSpinner({ loading: false }))
   ));
 

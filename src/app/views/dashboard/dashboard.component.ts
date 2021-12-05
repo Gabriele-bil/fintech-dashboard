@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../core/modules/auth/services/auth.service';
-import { UserStore } from '../../core/modules/auth/services/user-store';
-import { tap } from 'rxjs/operators';
+import { AuthFacade } from "../../core/store/auth/auth.facade";
 
 @Component({
   selector: 'ft-dashboard',
@@ -30,12 +28,11 @@ import { tap } from 'rxjs/operators';
   `],
 })
 export class DashboardComponent {
-  public user$ = this.userStore.user$;
+  public user$ = this.authFacade.user$;
 
-  constructor(private authService: AuthService, private userStore: UserStore) {
-  }
+  constructor(private authFacade: AuthFacade) { }
 
   public logout(): void {
-    this.authService.logout();
+    this.authFacade.logout();
   }
 }

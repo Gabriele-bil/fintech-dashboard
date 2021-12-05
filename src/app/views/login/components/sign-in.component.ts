@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/modules/auth/services/auth.service';
 import { Router } from '@angular/router';
+import { AuthFacade } from "../../../core/store/auth/auth.facade";
 
 @Component({
   selector: 'ft-sign-in',
@@ -60,7 +61,8 @@ export class SignInComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private authFacade: AuthFacade
   ) { }
 
   public get email(): AbstractControl {
@@ -73,8 +75,9 @@ export class SignInComponent {
 
   public logUser(): void {
     if (this.loginForm.valid) {
-      this.authService.login(this.email.value, this.password.value)
-        .subscribe(() => this.router.navigateByUrl('/dashboard'));
+      /*this.authService.login(this.email.value, this.password.value)
+        .subscribe(() => this.router.navigateByUrl('/dashboard'));*/
+      this.authFacade.login(this.email.value, this.password.value);
     }
   }
 }

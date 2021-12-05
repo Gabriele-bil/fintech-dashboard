@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { CoreFacade } from "./core/store/core.facade";
+import { CoreFacade } from "./core/store/core/core.facade";
+import { AuthFacade } from "./core/store/auth/auth.facade";
 
 @Component({
   selector: 'ft-root',
@@ -23,5 +24,7 @@ import { CoreFacade } from "./core/store/core.facade";
   `]
 })
 export class AppComponent {
-  constructor(public coreFacade: CoreFacade) { }
+  constructor(public coreFacade: CoreFacade, private authFacade: AuthFacade) {
+    this.authFacade.getCurrentUser();
+  }
 }

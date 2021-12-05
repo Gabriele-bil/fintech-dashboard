@@ -11,8 +11,10 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { EffectsModule } from '@ngrx/effects';
-import { coreReducer } from "./core/store/core.reducer";
+import { coreReducer } from "./core/store/core/core.reducer";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { authReducer } from "./core/store/auth/auth.reducer";
+import { AuthEffects } from "./core/store/auth/auth.effects";
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,9 +29,9 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     }),
     CoreModule,
     MatSnackBarModule,
-    StoreModule.forRoot({ core: coreReducer }),
+    StoreModule.forRoot({ core: coreReducer, auth: authReducer }),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
-    EffectsModule.forRoot([]),
+    EffectsModule.forRoot([AuthEffects]),
     MatProgressSpinnerModule
   ],
   bootstrap: [AppComponent],

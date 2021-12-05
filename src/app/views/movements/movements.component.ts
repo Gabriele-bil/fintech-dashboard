@@ -5,7 +5,7 @@ import { CardsService } from '../../api/cards.service';
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
 import { filter, map, scan, switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CoreFacade } from "../../core/store/core.facade";
+import { CoreFacade } from "../../core/store/core/core.facade";
 
 type PaginetedMovementsWithCardId = PaginatedMovements & { selectedCardId: string | null };
 

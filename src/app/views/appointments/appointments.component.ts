@@ -8,7 +8,7 @@ import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { AppointmentsService } from '../../api/appointments.service';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from "rxjs/operators";
-import { CoreFacade } from "../../core/store/core.facade";
+import { CoreFacade } from "../../core/store/core/core.facade";
 
 @Component({
   selector: 'ft-appointments',

@@ -5,7 +5,7 @@ import * as cardActions from "./cards.actions";
 import { map, switchMap, tap } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { SnackBarService } from "src/app/shared/services/snack-bar.service";
-import { setSpinner } from "../../../core/store/core.actions";
+import { setSpinner } from "../../../core/store/core/core.actions";
 
 @Injectable()
 export class CardsEffects {
