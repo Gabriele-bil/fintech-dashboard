@@ -20,3 +20,20 @@ $fintech-dashboard-theme: mat.define-dark-theme((
 }
 
 @include mat.all-component-themes($fintech-dashboard-theme);
+
+.light-theme {
+  $fintech-dashboard-primary-light: mat.define-palette(mat.$light-green-palette);
+  $fintech-dashboard-accent-light: mat.define-palette(mat.$deep-orange-palette, A400, A200, A600);
+
+  $fintech-dashboard-warn-light: mat.define-palette(mat.$red-palette);
+
+  $fintech-dashboard-theme-light: mat.define-light-theme((
+    color: (
+      primary: $fintech-dashboard-primary-light,
+      accent: $fintech-dashboard-accent-light,
+      warn: $fintech-dashboard-warn-light,
+    )
+  ));
+
+  @include mat.all-component-themes($fintech-dashboard-theme-light);
+}

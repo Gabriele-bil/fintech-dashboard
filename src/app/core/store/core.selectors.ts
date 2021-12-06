@@ -7,3 +7,8 @@ export const getLoading$ = createSelector(
   getCoreFeature,
   ({ loading }) => loading
 );
+
+export const getTheme$ = createSelector(
+  getCoreFeature,
+  ({ theme }) => theme
+);

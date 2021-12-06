@@ -4,13 +4,15 @@ import { CoreFacade } from "./core/store/core.facade";
 @Component({
   selector: 'ft-root',
   template: `
-    <div
-      *ngIf="coreFacade.loading$ | async"
-      class="d-flex align-items-center justify-content-center loader"
-    >
-      <mat-spinner></mat-spinner>
+    <div [class]="coreFacade.theme$ | async">
+      <div
+        *ngIf="coreFacade.loading$ | async"
+        class="d-flex align-items-center justify-content-center loader"
+      >
+        <mat-spinner></mat-spinner>
+      </div>
+      <router-outlet></router-outlet>
     </div>
-    <router-outlet></router-outlet>
   `,
   styles: [`
     .loader {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { User } from '../../../../models/user.model';
+import { User } from 'src/app/models/user.model';
+import { Theme } from "../../../store/core.reducer";
 
 @Component({
   selector: 'ft-nav',
@@ -29,6 +30,19 @@ import { User } from '../../../../models/user.model';
         <mat-icon class="me-3">receipt</mat-icon>
         Tasse
       </mat-list-item>
+      <div class="w-100 my-4">
+        <div class="text-center">Dark Mode?</div>
+        <div class="d-flex justify-content-center">
+          <mat-icon>light_mode</mat-icon>
+          <mat-icon>dark_mode</mat-icon>
+        </div>
+        <div class="d-flex justify-content-center">
+          <mat-slide-toggle
+            [checked]="actualTheme === 'dark-theme'"
+            (change)="changeTheme.emit($event.checked)"
+          ></mat-slide-toggle>
+        </div>
+      </div>
       <mat-list-item (click)="logout.emit()">
         <mat-icon class="me-3">person</mat-icon>
         <div>
@@ -50,5 +64,7 @@ import { User } from '../../../../models/user.model';
 })
 export class NavComponent {
   @Input() user: User | null = null;
+  @Input() actualTheme: Theme | null = 'light-theme';
   @Output() logout = new EventEmitter<void>();
+  @Output() changeTheme = new EventEmitter<boolean>();
 }
