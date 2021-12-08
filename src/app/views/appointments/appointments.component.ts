@@ -6,9 +6,10 @@ import { DayWithSlot } from '../../models/day-with-slot';
 import { SnackBarService } from '../../shared/services/snack-bar.service';
 import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 import { AppointmentsService } from '../../api/appointments.service';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from "rxjs/operators";
 import { CoreFacade } from "../../core/store/core.facade";
+import { AppointmentsFacade } from "./store/appointments.facade";
 
 @Component({
   selector: 'ft-appointments',
@@ -24,7 +25,7 @@ import { CoreFacade } from "../../core/store/core.facade";
         <ft-appointments-select-date
           *ngIf="selectedLocation$ | async as selectedLocation"
           [location]="selectedLocation"
-          [slotsDay]="slots"
+          [slotsDay]="slots$ | async"
           (selectedDayWithSlot)="openConfirmDialog($event)"
         >
         </ft-appointments-select-date>
@@ -39,22 +40,23 @@ import { CoreFacade } from "../../core/store/core.facade";
 })
 export class AppointmentsComponent implements OnInit, OnDestroy {
   @ViewChild('drawer') drawer!: MatSidenav;
-
-  public locations$ = new BehaviorSubject<Location[]>([]);
-  public selectedLocation$ = new BehaviorSubject<Location | null>(null);
-  public slots: DayWithSlots[] = [];
-
   private destroy$ = new Subject<void>()
+
+  public locations$ = this.appointmentsFacade.locations$.pipe(takeUntil(this.destroy$));
+  public selectedLocation$: Observable<Location | undefined> | null = null;
+  public slots: DayWithSlots[] = [];
+  public slots$ = this.appointmentsFacade.slots$.pipe(takeUntil(this.destroy$));
 
   constructor(
     private dialogService: DialogService,
     private snackBarService: SnackBarService,
     private appointmentsService: AppointmentsService,
-    private coreFacade: CoreFacade
+    private coreFacade: CoreFacade,
+    private appointmentsFacade: AppointmentsFacade
   ) { }
 
   public ngOnInit(): void {
-    this.getLocation();
+    this.appointmentsFacade.setAllLocations();
   }
 
   public ngOnDestroy(): void {
@@ -78,7 +80,6 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
             if (res) {
               this.snackBarService.openDefaultSnackBar('Appuntamento confermato');
               this.drawer.close();
-              this.getLocation();
             }
         })
       }
@@ -86,24 +87,15 @@ export class AppointmentsComponent implements OnInit, OnDestroy {
   }
 
   public selectLocation(location: Location, drawer: MatDrawer): void {
-    this.coreFacade.setSpinner(true);
+    this.selectedLocation$ = this.appointmentsFacade.getLocation$(location._id).pipe(takeUntil(this.destroy$));
+    this.appointmentsFacade.selectLocation(location._id, drawer);
+    /*this.coreFacade.setSpinner(true);
     this.appointmentsService.getSlotsByLocationId(location._id)
       .pipe(takeUntil(this.destroy$))
       .subscribe(slots => {
         this.slots = slots;
         drawer.open();
         this.coreFacade.setSpinner(false);
-        this.selectedLocation$.next(location);
-      });
-  }
-
-  private getLocation(): void {
-    this.coreFacade.setSpinner(true);
-    this.appointmentsService.getAllLocations()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(locations => {
-        this.locations$.next(locations);
-        this.coreFacade.setSpinner(false);
-      });
+      });*/
   }
 }
