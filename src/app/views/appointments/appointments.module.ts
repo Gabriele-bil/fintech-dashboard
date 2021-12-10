@@ -7,6 +7,11 @@ import { AppointmentsListComponent } from './components/appointments-list.compon
 import { AppointmentsSelectDateComponent } from './components/appointments-select-date.component';
 import { SharedModule } from '../../shared/modules/shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { StoreModule } from "@ngrx/store";
+import { appointmentsFeatureKey, appointmentsReducer } from "./store/appointments.reducer";
+import { EffectsModule } from "@ngrx/effects";
+import { AppointmentsEffects } from "./store/appointments.effects";
+import { AppointmentsFacade } from "./store/appointments.facade";
 
 @NgModule({
   declarations: [
@@ -18,7 +23,10 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     AppointmentsRoutingModule,
     SharedModule,
-    ReactiveFormsModule
-  ]
+    ReactiveFormsModule,
+    StoreModule.forFeature(appointmentsFeatureKey, appointmentsReducer),
+    EffectsModule.forFeature([AppointmentsEffects])
+  ],
+  providers: [AppointmentsFacade]
 })
 export class AppointmentsModule { }
