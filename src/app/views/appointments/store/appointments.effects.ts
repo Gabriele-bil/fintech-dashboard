@@ -4,41 +4,40 @@ import { AppointmentsService } from "../../../api/appointments.service";
 import * as appointmentsActions from "./appointments.actions";
 import { map, switchMap, tap } from "rxjs/operators";
 import { setSpinner } from "../../../core/store/core.actions";
+import { SnackBarService } from "../../../shared/services/snack-bar.service";
 
 @Injectable()
 export class AppointmentsEffects {
 
   public setLocations$ = createEffect(() => this.actions$.pipe(
-   ofType(appointmentsActions.setAllLocations),
+   ofType(appointmentsActions.setAllLocations, appointmentsActions.scheduleAppointmentsSuccess),
    switchMap(() => this.appontimentsService.getAllLocations().pipe(
      map(locations => appointmentsActions.setAllLocationsSuccess({ locations }))
    ))
   ));
 
-  /*public setSlots$ = createEffect(() => this.actions$.pipe(
-    ofType(appointmentsActions.setSlotsForLocation),
+  public selectLocation$ = createEffect(() => this.actions$.pipe(
+    ofType(appointmentsActions.selectLocation),
     switchMap(({ locationId }) => this.appontimentsService.getSlotsByLocationId(locationId).pipe(
       map(slots => appointmentsActions.setSlotsForLocationSuccess({ slots }))
     ))
-  ));*/
+  ));
 
   public scheduleAppointments$ = createEffect(() => this.actions$.pipe(
     ofType(appointmentsActions.scheduleAppointments),
     switchMap(({ appointments }) => this.appontimentsService.scheduleAppointment(appointments).pipe(
-      map(() => appointmentsActions.setAllLocations())
+      switchMap(() => [appointmentsActions.scheduleAppointmentsSuccess(), appointmentsActions.setDrawer( { openDrawer: false })])
     ))
   ));
 
-  public selectLocation$ = createEffect(() => this.actions$.pipe(
-    ofType(appointmentsActions.selectLocation),
-    switchMap(({ locationId , drawer}) => this.appontimentsService.getSlotsByLocationId(locationId).pipe(
-      tap(() => drawer.open()),
-      map(slots => appointmentsActions.setSlotsForLocationSuccess({ slots }))
-    ))
-  ));
+  // TODO Farlo shared
+  public openSnackBar$ = createEffect(() => this.actions$.pipe(
+    ofType(appointmentsActions.scheduleAppointmentsSuccess),
+    tap(() => this.snackBarService.openDefaultSnackBar('Appuntamento confermato'))
+  ), { dispatch: false });
 
   public activeSpinner$ = createEffect(() => this.actions$.pipe(
-    ofType(appointmentsActions.setAllLocations, appointmentsActions.selectLocation),
+    ofType(appointmentsActions.setAllLocations, appointmentsActions.selectLocation, appointmentsActions.scheduleAppointments),
     map(() => setSpinner({ loading: true }))
   ));
 
@@ -47,5 +46,5 @@ export class AppointmentsEffects {
     map(() => setSpinner({ loading: false }))
   ));
 
-  constructor(private actions$: Actions, private appontimentsService: AppointmentsService) { }
+  constructor(private actions$: Actions, private appontimentsService: AppointmentsService, private snackBarService: SnackBarService) { }
 }

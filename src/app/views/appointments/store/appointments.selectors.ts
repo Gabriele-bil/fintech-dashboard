@@ -9,12 +9,17 @@ export const getLocations$ = createSelector(
   ({ locations }) => locations
 );
 
-export const getLocation$ = createSelector(
+export const getLocation$ = (locationId: string) => createSelector(
   getLocations$,
-  (locations: Location[], locationId: string) => locations.find(l => l._id === locationId)
+  (locations: Location[]) => locations.find(l => l._id === locationId)
 );
 
 export const getSlots$ = createSelector(
   getAppointmentsFeature,
   ({ slots }) => slots
+);
+
+export const getOpenDrawer$ = createSelector(
+  getAppointmentsFeature,
+  ({ openDrawer }) => openDrawer
 );
